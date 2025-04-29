@@ -3,1714 +3,1402 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Konomi Femto - Standalone Agent Environment</title>
+    <meta name="description" content="Konomi Systems - Advanced Femto Computing Solutions">
+    <title>Konomi Systems</title>
     <style>
         :root {
-            --primary-color: #3a86ff;
-            --secondary-color: #8338ec;
-            --accent-color: #ff006e;
-            --background-color: #10131a;
-            --surface-color: #1a1f2b;
-            --text-color: #e2e8f0;
-            --border-color: #2d3748;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --error-color: #ef4444;
+            --primary-color: #0033a0;
+            --secondary-color: #e60012;
+            --accent-color: #00aeef;
+            --background-color: #0a0a0a;
+            --surface-color: #121212;
+            --surface-color-light: #1e1e1e;
+            --text-color: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --border-color: #333333;
+            --success-color: #00c853;
+            --warning-color: #ffab00;
+            --error-color: #ff5252;
+            --terminal-green: #33ff33;
+            --terminal-blue: #3399ff;
+            --gradient-red: #e60012;
+            --gradient-blue: #0033a0;
+            --gradient-purple: #8338ec;
+            --gradient-cyan: #00aeef;
+            --font-mono: 'Courier New', monospace;
+            --font-sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.14);
+            --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+            --animation-speed: 0.3s;
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
+            font-family: var(--font-sans);
             background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Boot Screen */
+        #boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--background-color);
+            z-index: 1000;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-in-out;
         }
 
-        header {
+        .boot-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .boot-logo::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(
+                var(--gradient-red),
+                var(--gradient-purple),
+                var(--gradient-blue),
+                var(--gradient-cyan),
+                var(--gradient-red)
+            );
+            border-radius: 50%;
+            animation: rotate 4s linear infinite;
+        }
+
+        .boot-logo::after {
+            content: "K";
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            background-color: var(--background-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .boot-progress {
+            width: 300px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .boot-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--gradient-red), var(--gradient-blue));
+            transition: width 0.2s ease-out;
+        }
+
+        .boot-message {
+            font-family: var(--font-mono);
+            color: var(--terminal-green);
+            margin-bottom: 1rem;
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .boot-terminal {
+            width: 90%;
+            max-width: 700px;
+            height: 300px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--terminal-green);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            margin-top: 1rem;
+        }
+
+        .terminal-line {
+            width: 100%;
+            margin-bottom: 0.3rem;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .terminal-line.success {
+            color: var(--success-color);
+        }
+
+        .terminal-line.warning {
+            color: var(--warning-color);
+        }
+
+        .terminal-line.error {
+            color: var(--error-color);
+        }
+
+        .terminal-line.info {
+            color: var(--terminal-blue);
+        }
+
+        .boot-button {
+            display: none;
+            padding: 1rem 2rem;
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, var(--gradient-red), var(--gradient-blue));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow-md);
+        }
+
+        .boot-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* OS Container */
+        #os-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Taskbar */
+        .taskbar {
+            height: 50px;
             background-color: var(--surface-color);
             border-bottom: 1px solid var(--border-color);
-            padding: 1rem;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            padding: 0 1.5rem;
+            z-index: 10;
         }
 
-        .logo {
+        .konomi-logo {
             display: flex;
             align-items: center;
             gap: 0.75rem;
         }
 
         .logo-icon {
-            width: 2rem;
-            height: 2rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 0.5rem;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, var(--gradient-red), var(--gradient-blue));
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 700;
             color: white;
-            font-weight: bold;
         }
 
         .logo-text {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 600;
         }
 
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 1rem;
-        }
-
-        .tab {
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-            color: rgba(226, 232, 240, 0.6);
-        }
-
-        .tab.active {
-            border-bottom: 2px solid var(--primary-color);
-            color: var(--text-color);
-        }
-
-        .tab:hover {
-            color: var(--text-color);
-        }
-
-        .content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 260px;
-            background-color: var(--surface-color);
-            border-right: 1px solid var(--border-color);
-            overflow-y: auto;
-            padding: 1rem;
-        }
-
-        .section-title {
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: rgba(226, 232, 240, 0.6);
-            margin: 1.5rem 0 0.75rem;
-        }
-
-        .section-title:first-child {
-            margin-top: 0;
-        }
-
-        .agent-list {
-            list-style: none;
-        }
-
-        .agent-item {
-            padding: 0.75rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            margin-bottom: 0.5rem;
-            background-color: rgba(255, 255, 255, 0.05);
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .agent-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .agent-item.active {
-            background-color: rgba(58, 134, 255, 0.15);
-            border-left: 3px solid var(--primary-color);
-        }
-
-        .agent-icon {
-            width: 1.5rem;
-            height: 1.5rem;
-            background-color: var(--primary-color);
-            border-radius: 0.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            color: white;
-        }
-
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .agent-view {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .agent-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .agent-name {
-            font-size: 1.125rem;
-            font-weight: 500;
-        }
-
-        .agent-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            background-color: var(--surface-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #2a75ea;
-        }
-
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-        }
-
-        .message {
-            max-width: 80%;
-            margin-bottom: 1rem;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            line-height: 1.5;
-        }
-
-        .message.user {
-            align-self: flex-end;
-            background-color: var(--primary-color);
-            color: white;
+        .taskbar-right {
             margin-left: auto;
-        }
-
-        .message.agent {
-            align-self: flex-start;
-            background-color: var(--surface-color);
-            border: 1px solid var(--border-color);
-        }
-
-        .input-container {
             display: flex;
-            padding: 1rem;
-            border-top: 1px solid var(--border-color);
-            gap: 0.5rem;
+            align-items: center;
+            gap: 1.5rem;
         }
 
-        .chat-input {
-            flex: 1;
-            padding: 0.75rem;
-            border-radius: 0.375rem;
-            background-color: var(--surface-color);
-            border: 1px solid var(--border-color);
+        .taskbar-button {
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
             color: var(--text-color);
-            font-family: inherit;
-            resize: none;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color var(--animation-speed);
         }
 
-        .chat-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
+        .taskbar-button:hover {
+            background-color: rgba(255, 255, 255, 0.15);
         }
 
-        .status-bar {
-            background-color: var(--surface-color);
-            border-top: 1px solid var(--border-color);
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            color: rgba(226, 232, 240, 0.6);
-            display: flex;
-            justify-content: space-between;
+        .taskbar-button.primary {
+            background-color: var(--primary-color);
         }
 
-        .database-section {
-            margin-top: 1rem;
+        .taskbar-button.primary:hover {
+            background-color: #0044cc;
         }
 
-        .database-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem;
-            border-radius: 0.25rem;
-            background-color: rgba(255, 255, 255, 0.05);
-            margin-bottom: 0.5rem;
-        }
-
-        .database-name {
-            font-size: 0.875rem;
-        }
-
-        .database-size {
-            font-size: 0.75rem;
-            color: rgba(226, 232, 240, 0.6);
-        }
-
-        .console-container {
+        /* Main content */
+        .main-content {
             flex: 1;
+            position: relative;
             overflow-y: auto;
-            padding: 1rem;
-            font-family: 'Courier New', Courier, monospace;
-            background-color: rgba(0, 0, 0, 0.3);
-            white-space: pre-wrap;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
-        .console-line {
-            margin-bottom: 0.25rem;
-            line-height: 1.4;
-        }
-
-        .console-input {
-            display: flex;
-            padding: 1rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .console-prompt {
-            color: var(--success-color);
-            margin-right: 0.5rem;
-        }
-
-        .code-editor {
-            flex: 1;
+        /* Hero Section */
+        .hero-section {
+            height: 100vh;
+            background-color: var(--background-color);
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
             overflow: hidden;
+            padding: 2rem;
         }
 
-        .editor-tabs {
-            display: flex;
-            background-color: rgba(0, 0, 0, 0.2);
-            overflow-x: auto;
-        }
-
-        .editor-tab {
-            padding: 0.5rem 1rem;
-            border-right: 1px solid var(--border-color);
-            font-size: 0.875rem;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .editor-tab.active {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--primary-color);
-        }
-
-        .editor-content {
-            flex: 1;
-            overflow: hidden;
-        }
-
-        #editor {
-            width: 100%;
-            height: 100%;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.875rem;
-            line-height: 1.6;
-        }
-
-        .workspace-container {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .split-view {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .workspace-panel {
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .panel-resizer {
-            width: 4px;
-            background-color: var(--border-color);
-            cursor: col-resize;
-        }
-
-        .panel-header {
-            padding: 0.5rem;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .log-entry {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 0.5rem;
-        }
-
-        .log-entry.info {
-            border-left: 3px solid var(--primary-color);
-        }
-
-        .log-entry.warning {
-            border-left: 3px solid var(--warning-color);
-        }
-
-        .log-entry.error {
-            border-left: 3px solid var(--error-color);
-        }
-
-        .log-time {
-            font-size: 0.75rem;
-            color: rgba(226, 232, 240, 0.6);
-            margin-right: 0.5rem;
-        }
-
-        .data-browser {
-            padding: 1rem;
-            overflow: auto;
-        }
-
-        .tree-view {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.875rem;
-        }
-
-        .tree-item {
-            padding: 0.25rem 0;
-        }
-
-        .tree-toggle {
-            cursor: pointer;
-        }
-
-        .tree-content {
-            margin-left: 1.5rem;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* Monaco editor overrides */
-        .monaco-editor {
-            --monaco-monospace-font: 'Courier New', Courier, monospace;
-        }
-
-        .monaco-editor .margin {
-            background-color: var(--background-color) !important;
-        }
-
-        /* Loader */
-        .loader-container {
-            position: fixed;
+        .hero-bg {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(16, 19, 26, 0.9);
+            background: radial-gradient(circle at center, rgba(0, 51, 160, 0.15), transparent 70%);
+            z-index: 1;
+        }
+
+        .hero-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+        }
+
+        .hero-content {
+            z-index: 2;
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, var(--text-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
             display: flex;
+            gap: 1.5rem;
             justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 1000;
+            flex-wrap: wrap;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
+        .cta-button {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .cta-button.primary {
+            background: linear-gradient(135deg, var(--gradient-red), var(--gradient-blue));
+            color: white;
+            border: none;
+            box-shadow: var(--shadow-md);
         }
 
-        .loader-text {
-            margin-top: 1rem;
-            font-size: 0.875rem;
+        .cta-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
-        .progress-bar {
-            width: 200px;
-            height: 4px;
+        .cta-button.secondary {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--text-secondary);
+        }
+
+        .cta-button.secondary:hover {
             background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            margin-top: 1rem;
+        }
+
+        /* Feature Section */
+        .feature-section {
+            padding: 6rem 2rem;
+            background-color: var(--surface-color);
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--gradient-red), var(--gradient-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background-color: var(--surface-color-light);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            height: 160px;
+            background: linear-gradient(135deg, var(--gradient-red), var(--gradient-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .feature-content {
+            padding: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Technology Section */
+        .technology-section {
+            padding: 6rem 2rem;
+            background-color: var(--background-color);
+            position: relative;
             overflow: hidden;
         }
 
-        .progress-fill {
+        .tech-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            background-color: var(--primary-color);
-            width: 0%;
-            transition: width 0.3s;
+            background: radial-gradient(circle at 70% 30%, rgba(230, 0, 18, 0.15), transparent 70%);
+            z-index: 1;
         }
 
-        /* Responsive layout */
+        .technology-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tech-showcase {
+            margin-top: 3rem;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .tech-item {
+            background-color: var(--surface-color-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            width: 280px;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .tech-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 6rem 2rem;
+            background-color: var(--surface-color);
+        }
+
+        .about-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+            width: 100%;
+        }
+
+        .about-card {
+            background-color: var(--surface-color-light);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .about-card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .about-card-content {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 6rem 2rem;
+            background-color: var(--background-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 70%, rgba(0, 174, 239, 0.15), transparent 70%);
+            z-index: 1;
+        }
+
+        .contact-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contact-form-container {
+            width: 100%;
+            margin-top: 3rem;
+            background-color: var(--surface-color-light);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-submit {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, var(--gradient-red), var(--gradient-blue));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--surface-color);
+            padding: 4rem 2rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-link-group {
+            min-width: 160px;
+        }
+
+        .footer-link-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .footer-link-list {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-link a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .footer-link a:hover {
+            color: var(--accent-color);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            max-width: 1200px;
+        }
+
+        .footer-copyright {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-link {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--surface-color-light);
+            border-radius: 50%;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .social-link:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive styling */
         @media (max-width: 768px) {
-            .content {
+            .cta-buttons {
                 flex-direction: column;
+                gap: 1rem;
             }
 
-            .sidebar {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tech-showcase {
+                gap: 1rem;
+            }
+
+            .tech-item {
                 width: 100%;
-                max-height: 200px;
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
             }
 
-            .split-view {
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
                 flex-direction: column;
+                text-align: center;
             }
+        }
 
-            .panel-resizer {
-                width: 100%;
-                height: 4px;
-                cursor: row-resize;
-            }
+        /* Loading dots animation */
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* Blinking cursor animation */
+        .blinking-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
         }
     </style>
 </head>
 <body>
-    <!-- Loader overlay -->
-    <div class="loader-container" id="loader">
-        <div class="spinner"></div>
-        <div class="loader-text">Initializing Konomi Femto Environment...</div>
-        <div class="progress-bar">
-            <div class="progress-fill" id="progress"></div>
+    <!-- Boot Screen -->
+    <div id="boot-screen">
+        <div class="boot-logo"></div>
+        <div class="boot-progress">
+            <div class="boot-progress-bar" id="boot-progress-bar"></div>
         </div>
+        <div class="boot-message" id="boot-message">Initializing Konomi Femto OS<span class="loading-dots"></span></div>
+        <div class="boot-terminal" id="boot-terminal"></div>
+        <button class="boot-button" id="boot-button">ENTER KONOMI SYSTEMS</button>
     </div>
 
-    <header>
-        <div class="logo">
-            <div class="logo-icon">K</div>
-            <div class="logo-text">Konomi Femto</div>
-        </div>
-        <div>
-            <button class="btn" id="toggleServer">Start Server</button>
-        </div>
-    </header>
-
-    <div class="tabs">
-        <div class="tab active" data-tab="workspace">Workspace</div>
-        <div class="tab" data-tab="agents">Agents</div>
-        <div class="tab" data-tab="console">Console</div>
-        <div class="tab" data-tab="databases">Databases</div>
-    </div>
-
-    <div class="content">
-        <div class="sidebar">
-            <div class="section-title">Available Agents</div>
-            <ul class="agent-list" id="agentList">
-                <li class="agent-item" data-agent="assistant">
-                    <div class="agent-icon">A</div>
-                    Assistant
-                </li>
-                <li class="agent-item" data-agent="coder">
-                    <div class="agent-icon">C</div>
-                    Code Generator
-                </li>
-                <li class="agent-item" data-agent="analyzer">
-                    <div class="agent-icon">D</div>
-                    Data Analyzer
-                </li>
-                <li class="agent-item" data-agent="search">
-                    <div class="agent-icon">S</div>
-                    Search Engine
-                </li>
-            </ul>
-
-            <div class="section-title">Compilers</div>
-            <ul class="agent-list">
-                <li class="agent-item" data-agent="python">
-                    <div class="agent-icon">Py</div>
-                    Python 3.10
-                </li>
-                <li class="agent-item" data-agent="js">
-                    <div class="agent-icon">JS</div>
-                    JavaScript
-                </li>
-                <li class="agent-item" data-agent="ruby">
-                    <div class="agent-icon">Rb</div>
-                    Ruby
-                </li>
-                <li class="agent-item" data-agent="cpp">
-                    <div class="agent-icon">C++</div>
-                    C++
-                </li>
-            </ul>
-
-            <div class="section-title">Databases</div>
-            <div class="database-section">
-                <div class="database-item">
-                    <div class="database-name">Embeddings DB</div>
-                    <div class="database-size">125MB</div>
-                </div>
-                <div class="database-item">
-                    <div class="database-name">Agent Memory</div>
-                    <div class="database-size">43MB</div>
-                </div>
-                <div class="database-item">
-                    <div class="database-name">Token Store</div>
-                    <div class="database-size">214MB</div>
-                </div>
-                <div class="database-item">
-                    <div class="database-name">Context Vectors</div>
-                    <div class="database-size">72MB</div>
-                </div>
+    <!-- OS Container -->
+    <div id="os-container">
+        <div class="taskbar">
+            <div class="konomi-logo">
+                <div class="logo-icon">K</div>
+                <div class="logo-text">Konomi Systems</div>
+            </div>
+            <div class="taskbar-right">
+                <button class="taskbar-button" onclick="scrollToSection('#features')">Products</button>
+                <button class="taskbar-button" onclick="scrollToSection('#technology')">Technology</button>
+                <button class="taskbar-button" onclick="scrollToSection('#about')">About</button>
+                <button class="taskbar-button primary" onclick="scrollToSection('#contact')">Contact Us</button>
             </div>
         </div>
 
-        <div class="main">
-            <!-- Workspace View (default) -->
-            <div class="workspace-container tab-content" id="workspaceContent">
-                <div class="split-view">
-                    <div class="workspace-panel">
-                        <div class="panel-header">Editor</div>
-                        <div class="code-editor">
-                            <div class="editor-tabs">
-                                <div class="editor-tab active">main.py</div>
-                                <div class="editor-tab">agent.py</div>
-                                <div class="editor-tab">database.py</div>
-                                <div class="editor-tab">config.json</div>
-                            </div>
-                            <div class="editor-content">
-                                <div id="editor">import json
-import base64
-import sqlite3
-from typing import Dict, List, Any, Optional
+        <div class="main-content">
+            <!-- Hero Section -->
+            <section class="hero-section" id="home">
+                <div class="hero-bg"></div>
+                <div class="hero-grid"></div>
+                <div class="hero-content">
+                    <h1 class="hero-title">Next-Generation Femto Computing Solutions</h1>
+                    <p class="hero-subtitle">
+                        Konomi Systems delivers cutting-edge femto architecture technology for the most demanding applications.
+                        From embedded AI to high-performance computing, our solutions redefine what's possible.
+                    </p>
+                    <div class="cta-buttons">
+                        <button class="cta-button primary" onclick="scrollToSection('#features')">Explore Our Solutions</button>
+                        <button class="cta-button secondary" onclick="scrollToSection('#contact')">Schedule a Demo</button>
+                    </div>
+                </div>
+            </section>
 
-class KonomiFemtoCore:
-    """
-    Core system for the Konomi Femto architecture.
-    Provides a lightweight framework for agent-based operations with
-    embedded tokenized databases and compiler access.
-    """
-    
-    def __init__(self, config_path: Optional[str] = None):
-        """Initialize the Konomi Femto core system"""
-        self.agents = {}
-        self.databases = {}
-        self.compilers = {}
-        self.config = self._load_config(config_path)
-        self._initialize_system()
-        
-    def _load_config(self, config_path: Optional[str]) -> Dict[str, Any]:
-        """Load configuration from file or use defaults"""
-        if config_path:
-            with open(config_path, 'r') as f:
-                return json.load(f)
-        return {
-            "system": {
-                "name": "Konomi Femto",
-                "version": "1.0.0",
-                "max_agents": 8,
-                "token_limit": 8192
-            },
-            "databases": {
-                "embeddings": {"size_mb": 125, "encrypted": True},
-                "agent_memory": {"size_mb": 43, "encrypted": False},
-                "token_store": {"size_mb": 214, "encrypted": True},
-                "context_vectors": {"size_mb": 72, "encrypted": False}
-            },
-            "compilers": {
-                "python": {"version": "3.10", "enabled": True},
-                "javascript": {"version": "ES2022", "enabled": True},
-                "ruby": {"version": "3.1", "enabled": True},
-                "cpp": {"version": "C++17", "enabled": True}
-            }
-        }
-    
-    def _initialize_system(self):
-        """Set up the core system components"""
-        # Initialize databases
-        for db_name, db_config in self.config["databases"].items():
-            self.databases[db_name] = TokenizedDatabase(
-                name=db_name,
-                size_mb=db_config["size_mb"],
-                encrypted=db_config["encrypted"]
-            )
-        
-        # Initialize compilers
-        for compiler_name, compiler_config in self.config["compilers"].items():
-            if compiler_config["enabled"]:
-                self.compilers[compiler_name] = CodeCompiler(
-                    language=compiler_name,
-                    version=compiler_config["version"]
-                )
-        
-        # Initialize core agents
-        self.register_agent(
-            "assistant", 
-            Agent(name="Assistant", role="general_assistant", 
-                  token_limit=self.config["system"]["token_limit"])
-        )
-        self.register_agent(
-            "coder", 
-            Agent(name="Code Generator", role="code_generator",
-                  token_limit=self.config["system"]["token_limit"])
-        )
-        self.register_agent(
-            "analyzer", 
-            Agent(name="Data Analyzer", role="data_analyzer",
-                  token_limit=self.config["system"]["token_limit"])
-        )
-        self.register_agent(
-            "search", 
-            Agent(name="Search Engine", role="search_engine",
-                  token_limit=self.config["system"]["token_limit"])
-        )
-        
-    def register_agent(self, agent_id: str, agent: 'Agent') -> bool:
-        """Register a new agent with the system"""
-        if len(self.agents) >= self.config["system"]["max_agents"]:
-            return False
-        
-        self.agents[agent_id] = agent
-        return True
-    
-    def get_agent(self, agent_id: str) -> Optional['Agent']:
-        """Get an agent by ID"""
-        return self.agents.get(agent_id)
-    
-    def run_code(self, language: str, code: str) -> Dict[str, Any]:
-        """Run code using the specified language compiler"""
-        compiler = self.compilers.get(language)
-        if not compiler:
-            return {"success": False, "error": f"No compiler available for {language}"}
-        
-        return compiler.compile_and_run(code)
-    
-    def query_database(self, db_name: str, query: str) -> Dict[str, Any]:
-        """Query a specific database"""
-        database = self.databases.get(db_name)
-        if not database:
-            return {"success": False, "error": f"Database {db_name} not found"}
-        
-        return database.query(query)
-    
-    def start_server(self, port: int = 8080) -> bool:
-        """Start the internal web server"""
-        # This would implement a lightweight web server
-        # but for the HTML standalone version, this is handled by JavaScript
-        return True
-    
-    def stop_server(self) -> bool:
-        """Stop the internal web server"""
-        return True
-    
-    def get_system_status(self) -> Dict[str, Any]:
-        """Get the current system status"""
-        return {
-            "system": {
-                "name": self.config["system"]["name"],
-                "version": self.config["system"]["version"],
-                "agent_count": len(self.agents),
-                "max_agents": self.config["system"]["max_agents"]
-            },
-            "databases": {
-                name: {"size_mb": db.size_mb, "record_count": db.get_record_count()}
-                for name, db in self.databases.items()
-            },
-            "compilers": {
-                name: {"version": compiler.version, "enabled": True}
-                for name, compiler in self.compilers.items()
-            }
-        }
-
-
-class TokenizedDatabase:
-    """Database for storing and retrieving tokenized data"""
-    
-    def __init__(self, name: str, size_mb: int, encrypted: bool = False):
-        self.name = name
-        self.size_mb = size_mb
-        self.encrypted = encrypted
-        self.connection = None
-        self._initialize_database()
-    
-    def _initialize_database(self):
-        """Initialize the in-memory database"""
-        self.connection = sqlite3.connect(':memory:')
-        cursor = self.connection.cursor()
-        
-        # Create tables based on database type
-        if self.name == "embeddings":
-            cursor.execute('''
-            CREATE TABLE embeddings (
-                id TEXT PRIMARY KEY,
-                vector BLOB,
-                metadata TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            ''')
-        elif self.name == "agent_memory":
-            cursor.execute('''
-            CREATE TABLE memories (
-                id TEXT PRIMARY KEY,
-                agent_id TEXT,
-                content TEXT,
-                embedding BLOB,
-                importance REAL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            ''')
-        elif self.name == "token_store":
-            cursor.execute('''
-            CREATE TABLE tokens (
-                id TEXT PRIMARY KEY,
-                token_type TEXT,
-                token_data BLOB,
-                metadata TEXT,
-                expires_at TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            ''')
-        elif self.name == "context_vectors":
-            cursor.execute('''
-            CREATE TABLE contexts (
-                id TEXT PRIMARY KEY,
-                vector BLOB,
-                source TEXT,
-                relevance REAL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            ''')
-        
-        self.connection.commit()
-        
-        # Add some sample data
-        self._add_sample_data()
-    
-    def _add_sample_data(self):
-        """Add sample data to the database for demo purposes"""
-        cursor = self.connection.cursor()
-        
-        if self.name == "embeddings":
-            # Sample embedding vectors
-            for i in range(100):
-                cursor.execute(
-                    "INSERT INTO embeddings (id, vector, metadata) VALUES (?, ?, ?)",
-                    (f"emb_{i}", b"sample_vector_data", json.dumps({"source": "sample"}))
-                )
-        elif self.name == "agent_memory":
-            # Sample agent memories
-            memories = [
-                ("mem_1", "assistant", "User asked about Python code optimization"),
-                ("mem_2", "assistant", "Explained database normalization concepts"),
-                ("mem_3", "coder", "Generated React component for data visualization"),
-                ("mem_4", "analyzer", "Analyzed sales data for Q3 2023")
-            ]
-            for mem_id, agent_id, content in memories:
-                cursor.execute(
-                    "INSERT INTO memories (id, agent_id, content, importance) VALUES (?, ?, ?, ?)",
-                    (mem_id, agent_id, content, 0.85)
-                )
-        
-        self.connection.commit()
-    
-    def query(self, query_string: str) -> Dict[str, Any]:
-        """Execute a query against the database"""
-        try:
-            cursor = self.connection.cursor()
-            cursor.execute(query_string)
-            columns = [description[0] for description in cursor.description] if cursor.description else []
-            results = cursor.fetchall()
-            
-            return {
-                "success": True,
-                "columns": columns,
-                "results": results,
-                "row_count": len(results)
-            }
-        except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
-    
-    def get_record_count(self) -> int:
-        """Get the number of records in the main table"""
-        cursor = self.connection.cursor()
-        if self.name == "embeddings":
-            cursor.execute("SELECT COUNT(*) FROM embeddings")
-        elif self.name == "agent_memory":
-            cursor.execute("SELECT COUNT(*) FROM memories")
-        elif self.name == "token_store":
-            cursor.execute("SELECT COUNT(*) FROM tokens")
-        elif self.name == "context_vectors":
-            cursor.execute("SELECT COUNT(*) FROM contexts")
-        else:
-            return 0
-        
-        return cursor.fetchone()[0]
-
-
-class CodeCompiler:
-    """Compiles and executes code in various languages"""
-    
-    def __init__(self, language: str, version: str):
-        self.language = language
-        self.version = version
-    
-    def compile_and_run(self, code: str) -> Dict[str, Any]:
-        """Compile and run the provided code"""
-        # In a real implementation, this would use secure sandboxing
-        # For the demo, we'll simulate execution results
-        
-        if self.language == "python":
-            return self._simulate_python_execution(code)
-        elif self.language == "javascript":
-            return self._simulate_js_execution(code)
-        else:
-            return {
-                "success": True,
-                "output": f"[Simulated {self.language} execution output]",
-                "execution_time_ms": 120
-            }
-    
-    def _simulate_python_execution(self, code: str) -> Dict[str, Any]:
-        """Simulate Python code execution results"""
-        # Check for common patterns to generate appropriate simulated output
-        if "print(" in code:
-            output_lines = []
-            for line in code.split("\n"):
-                if "print(" in line and ");" not in line:
-                    # Extract content between parentheses
-                    start = line.find("print(") + 6
-                    end = line.rfind(")")
-                    if start < end:
-                        content = line[start:end].strip()
-                        # Remove quotes if they exist
-                        if (content.startswith("'") and content.endswith("'")) or \
-                           (content.startswith('"') and content.endswith('"')):
-                            content = content[1:-1]
-                        output_lines.append(content)
-            
-            output = "\n".join(output_lines) if output_lines else "[No output]"
-        else:
-            output = "[Code executed successfully with no output]"
-            
-        return {
-            "success": True,
-            "output": output,
-            "execution_time_ms": 75
-        }
-    
-    def _simulate_js_execution(self, code: str) -> Dict[str, Any]:
-        """Simulate JavaScript code execution results"""
-        # Similar pattern matching for JS
-        if "console.log(" in code:
-            output_lines = []
-            for line in code.split("\n"):
-                if "console.log(" in line:
-                    # Extract content between parentheses
-                    start = line.find("console.log(") + 12
-                    end = line.rfind(")")
-                    if start < end:
-                        content = line[start:end].strip()
-                        # Remove quotes if they exist
-                        if (content.startswith("'") and content.endswith("'")) or \
-                           (content.startswith('"') and content.endswith('"')):
-                            content = content[1:-1]
-                        output_lines.append(content)
-            
-            output = "\n".join(output_lines) if output_lines else "[No output]"
-        else:
-            output = "[Code executed successfully with no output]"
-            
-        return {
-            "success": True,
-            "output": output,
-            "execution_time_ms": 45
-        }
-
-
-class Agent:
-    """Intelligent agent for performing specific tasks"""
-    
-    def __init__(self, name: str, role: str, token_limit: int = 8192):
-        self.name = name
-        self.role = role
-        self.token_limit = token_limit
-        self.memory = []
-        self._initialize_agent()
-    
-    def _initialize_agent(self):
-        """Initialize agent with appropriate capabilities"""
-        # Configure agent based on role
-        self.capabilities = {
-            "general_assistant": ["answer_questions", "summarize_text", "creative_writing"],
-            "code_generator": ["write_code", "debug_code", "explain_code"],
-            "data_analyzer": ["analyze_data", "create_visualizations", "statistical_analysis"],
-            "search_engine": ["web_search", "document_retrieval", "information_extraction"]
-        }.get(self.role, [])
-    
-    def process_message(self, message: str) -> Dict[str, Any]:
-        """Process a user message and generate a response"""
-        # In a real implementation, this would use ML models
-        # For the demo, we'll generate simulated responses
-        
-        self.memory.append({"role": "user", "content": message})
-        
-        if self.role == "general_assistant":
-            response = self._generate_assistant_response(message)
-        elif self.role == "code_generator":
-            response = self._generate_code_response(message)
-        elif self.role == "data_analyzer":
-            response = self._generate_analysis_response(message)
-        elif self.role == "search_engine":
-            response = self._generate_search_response(message)
-        else:
-            response = {"content": "I'm not sure how to respond to that."}
-        
-        self.memory.append({"role": "assistant", "content": response["content"]})
-        return response
-    
-    def _generate_assistant_response(self, message: str) -> Dict[str, str]:
-        """Generate a response as a general assistant"""
-        if "hello" in message.lower() or "hi" in message.lower():
-            return {"content": "Hello! I'm the Konomi Assistant. How can I help you today?"}
-        elif "help" in message.lower():
-            return {"content": "I can help with answering questions, providing information, or assisting with various tasks. What would you like to know?"}
-        elif "thank" in message.lower():
-            return {"content": "You're welcome! Is there anything else I can help with?"}
-        else:
-            return {"content": "I understand you're asking about something. As a simulated assistant in this demo, I have limited responses. In a full implementation, I would provide a helpful, detailed answer to your query."}
-    
-    def _generate_code_response(self, message: str) -> Dict[str, str]:
-        """Generate a code-related response"""
-        if "python" in message.lower():
-            return {"content": "Here's a Python example:\n```python\ndef calculate_average(numbers):\n    if not numbers:\n        return 0\n    return sum(numbers) / len(numbers)\n\n# Example usage\ndata = [10, 15, 20, 25, 30]\nprint(f\"The average is: {calculate_average(data)}\")\n```"}
-        elif "javascript" in message.lower() or "js" in message.lower():
-            return {"content": "Here's a JavaScript example:\n```javascript\nfunction calculateAverage(numbers) {\n    if (!numbers || numbers.length === 0) {\n        return 0;\n    }\n    const sum = numbers.reduce((total, num) => total + num, 0);\n    return sum / numbers.length;\n}\n\n// Example usage\nconst data = [10, 15, 20, 25, 30];\nconsole.log(`The average is: ${calculateAverage(data)}`);\n```"}
-        else:
-            return {"content": "I can help with code generation. Please specify what language you'd like to use and what functionality you need."}
-    
-    def _generate_analysis_response(self, message: str) -> Dict[str, str]:
-        """Generate a data analysis response"""
-        return {"content": "Based on the data analysis, I can see several trends:\n\n1. Revenue has increased by 15% year-over-year\n2. Customer retention is stable at 78%\n3. The most significant growth is in the mobile user segment\n\nWould you like me to prepare a more detailed report on any of these areas?"}
-    
-    def _generate_search_response(self, message: str) -> Dict[str, str]:
-        """Generate a search-like response"""
-        return {"content": "Here are the top results for your query:\n\n1. [Comprehensive Guide to Modern Programming](https://example.com/guide)\n2. [Best Practices for Software Development](https://example.com/best-practices)\n3. [Tutorial: Building Scalable Applications](https://example.com/tutorial)\n\nThese resources should provide the information you're looking for."}
-
-
-# Initialize the system when imported
-konomi_system = KonomiFemtoCore()
-
-# Example usage
-if __name__ == "__main__":
-    # Get an agent
-    assistant = konomi_system.get_agent("assistant")
-    
-    # Process a message
-    response = assistant.process_message("Hello, can you help me?")
-    print(response["content"])
-    
-    # Run some code
-    result = konomi_system.run_code("python", "print('Hello, Konomi!')")
-    print(result["output"])
-    
-    # Query a database
-    db_result = konomi_system.query_database("agent_memory", "SELECT * FROM memories LIMIT 2")
-    print(db_result)
-                                </div>
-                            </div>
+            <!-- Feature Section -->
+            <section class="feature-section" id="features">
+                <div class="section-header">
+                    <h2 class="section-title">Our Core Solutions</h2>
+                    <p class="section-subtitle">
+                        Discover our innovative product line designed to revolutionize computing at every scale
+                    </p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🧠</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">Femto Compute Architecture</h3>
+                            <p class="feature-description">
+                                Our revolutionary femtoscale computing architecture delivers unprecedented performance 
+                                in microscopic form factors, enabling new categories of embedded intelligence.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
                         </div>
                     </div>
-                    <div class="panel-resizer" id="panelResizer"></div>
-                    <div class="workspace-panel">
-                        <div class="panel-header">Console</div>
-                        <div class="console-container" id="workspaceConsole">
-                            <div class="console-line">> Konomi Femto Environment initialized</div>
-                            <div class="console-line">> Python 3.10.8 virtual environment activated</div>
-                            <div class="console-line">> Type 'help' for a list of commands</div>
-                            <div class="console-line">> </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌐</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">KonomOS Platform</h3>
+                            <p class="feature-description">
+                                A complete operating environment for femto-scale systems, providing secure, 
+                                real-time performance with advanced virtualization capabilities.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
                         </div>
-                        <div class="input-container">
-                            <div class="console-prompt">></div>
-                            <textarea class="chat-input" id="consoleInput" placeholder="Enter command..."></textarea>
-                            <button class="btn btn-primary" id="runCommand">Run</button>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">Embedded Tiny-LLM</h3>
+                            <p class="feature-description">
+                                Ultra-compact language models designed for edge devices, bringing natural language
+                                processing to constrained environments with minimal resource usage.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">eVGPU Accelerator</h3>
+                            <p class="feature-description">
+                                Our embedded Virtual GPU technology delivers desktop-class graphics and compute 
+                                capabilities in energy-efficient packages for edge applications.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔄</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">Femto Tensor Engine</h3>
+                            <p class="feature-description">
+                                Specialized tensor processing units optimized for machine learning workloads,
+                                enabling real-time AI inferencing with minimal power consumption.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔐</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">Secure Computing Platform</h3>
+                            <p class="feature-description">
+                                End-to-end security architecture with hardware-backed cryptography, secure boot,
+                                and tamper detection for mission-critical applications.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Agent Chat View -->
-            <div class="agent-view tab-content hidden" id="agentsContent">
-                <div class="agent-header">
-                    <div class="agent-name" id="currentAgentName">Assistant</div>
-                    <div class="agent-actions">
-                        <button class="btn">Clear Chat</button>
-                        <button class="btn btn-primary">Export Log</button>
+            <!-- Technology Section -->
+            <section class="technology-section" id="technology">
+                <div class="tech-bg"></div>
+                <div class="technology-content">
+                    <div class="section-header">
+                        <h2 class="section-title">Our Technology</h2>
+                        <p class="section-subtitle">
+                            Pioneering advancements in femtoscale computing through breakthrough innovation
+                        </p>
                     </div>
-                </div>
-                <div class="chat-container" id="chatContainer">
-                    <div class="message agent">
-                        Hello! I'm the Konomi Assistant. How can I help you today?
-                    </div>
-                </div>
-                <div class="input-container">
-                    <textarea class="chat-input" id="messageInput" placeholder="Type your message..."></textarea>
-                    <button class="btn btn-primary" id="sendMessage">Send</button>
-                </div>
-            </div>
-
-            <!-- Console View -->
-            <div class="tab-content hidden" id="consoleContent">
-                <div class="console-container" id="mainConsole">
-                    <div class="console-line">> Konomi Femto Environment v1.0.0</div>
-                    <div class="console-line">> Initializing system components...</div>
-                    <div class="console-line">> Loading databases: embeddings, agent_memory, token_store, context_vectors</div>
-                    <div class="console-line">> Loading compilers: python, javascript, ruby, cpp</div>
-                    <div class="console-line">> Registering agents: assistant, coder, analyzer, search</div>
-                    <div class="console-line">> System initialized successfully</div>
-                    <div class="console-line">> Ready for commands</div>
-                </div>
-                <div class="console-input">
-                    <div class="console-prompt">$</div>
-                    <textarea class="chat-input" id="mainConsoleInput" placeholder="Enter system command..."></textarea>
-                    <button class="btn btn-primary" id="executeCommand">Execute</button>
-                </div>
-            </div>
-
-            <!-- Database View -->
-            <div class="tab-content hidden" id="databasesContent">
-                <div class="data-browser">
-                    <div class="panel-header">Database Browser</div>
-                    <div class="tree-view">
-                        <div class="tree-item">
-                            <span class="tree-toggle">► embeddings_db</span>
-                            <div class="tree-content hidden">
-                                <div class="tree-item">Table: embeddings (100 records)</div>
-                                <div class="tree-item">
-                                    <span class="tree-toggle">► Schema</span>
-                                    <div class="tree-content hidden">
-                                        <div class="tree-item">id: TEXT PRIMARY KEY</div>
-                                        <div class="tree-item">vector: BLOB</div>
-                                        <div class="tree-item">metadata: TEXT</div>
-                                        <div class="tree-item">created_at: TIMESTAMP</div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="tech-showcase">
+                        <div class="tech-item">
+                            <div class="tech-icon">⚡</div>
+                            <h3 class="tech-title">RISC-V Femto Core</h3>
+                            <p class="tech-description">
+                                Our custom RISC-V cores are optimized for 7nm process technology, delivering 
+                                incredible performance at sub-watt power envelopes.
+                            </p>
                         </div>
-                        <div class="tree-item">
-                            <span class="tree-toggle">► agent_memory_db</span>
-                            <div class="tree-content hidden">
-                                <div class="tree-item">Table: memories (4 records)</div>
-                                <div class="tree-item">
-                                    <span class="tree-toggle">► Schema</span>
-                                    <div class="tree-content hidden">
-                                        <div class="tree-item">id: TEXT PRIMARY KEY</div>
-                                        <div class="tree-item">agent_id: TEXT</div>
-                                        <div class="tree-item">content: TEXT</div>
-                                        <div class="tree-item">embedding: BLOB</div>
-                                        <div class="tree-item">importance: REAL</div>
-                                        <div class="tree-item">created_at: TIMESTAMP</div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">🔄</div>
+                            <h3 class="tech-title">Mesh NoC Interconnect</h3>
+                            <p class="tech-description">
+                                High-bandwidth, low-latency Network-on-Chip architecture enabling scalable multi-core 
+                                designs with efficient data movement.
+                            </p>
                         </div>
-                        <div class="tree-item">
-                            <span class="tree-toggle">► token_store_db</span>
-                            <div class="tree-content hidden">
-                                <div class="tree-item">Table: tokens (0 records)</div>
-                                <div class="tree-item">
-                                    <span class="tree-toggle">► Schema</span>
-                                    <div class="tree-content hidden">
-                                        <div class="tree-item">id: TEXT PRIMARY KEY</div>
-                                        <div class="tree-item">token_type: TEXT</div>
-                                        <div class="tree-item">token_data: BLOB</div>
-                                        <div class="tree-item">metadata: TEXT</div>
-                                        <div class="tree-item">expires_at: TIMESTAMP</div>
-                                        <div class="tree-item">created_at: TIMESTAMP</div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">💾</div>
+                            <h3 class="tech-title">HBM Memory Integration</h3>
+                            <p class="tech-description">
+                                Integrated High-Bandwidth Memory delivers up to 256GB/s memory bandwidth in compact 
+                                packages for data-intensive workloads.
+                            </p>
                         </div>
-                        <div class="tree-item">
-                            <span class="tree-toggle">► context_vectors_db</span>
-                            <div class="tree-content hidden">
-                                <div class="tree-item">Table: contexts (0 records)</div>
-                                <div class="tree-item">
-                                    <span class="tree-toggle">► Schema</span>
-                                    <div class="tree-content hidden">
-                                        <div class="tree-item">id: TEXT PRIMARY KEY</div>
-                                        <div class="tree-item">vector: BLOB</div>
-                                        <div class="tree-item">source: TEXT</div>
-                                        <div class="tree-item">relevance: REAL</div>
-                                        <div class="tree-item">created_at: TIMESTAMP</div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">🔋</div>
+                            <h3 class="tech-title">Advanced Power States</h3>
+                            <p class="tech-description">
+                                Fine-grained power management with nano-second state transitions enables 
+                                unprecedented energy efficiency during operation.
+                            </p>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">📚</div>
+                            <h3 class="tech-title">Quantized Neural Engine</h3>
+                            <p class="tech-description">
+                                Purpose-built neural processors supporting INT8/INT4 quantization for 
+                                efficient inference of deep learning models.
+                            </p>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">⚙️</div>
+                            <h3 class="tech-title">Femto-scale Virtualization</h3>
+                            <p class="tech-description">
+                                Hardware-accelerated virtualization technology allowing secure, isolated 
+                                execution environments with minimal overhead.
+                            </p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- About Section -->
+            <section class="about-section" id="about">
+                <div class="about-content">
+                    <div class="section-header">
+                        <h2 class="section-title">About Konomi Systems</h2>
+                        <p class="section-subtitle">
+                            Leading the revolution in femto computing through innovation and excellence
+                        </p>
+                    </div>
+                    <div class="about-grid">
+                        <div class="about-card">
+                            <h3 class="about-card-title">Our Mission</h3>
+                            <p class="about-card-content">
+                                At Konomi Systems, we're dedicated to pushing the boundaries of what's possible with femto-scale 
+                                computing. Our mission is to create technologies that enable a new generation of intelligent, 
+                                energy-efficient computing systems that can transform industries and improve lives.
+                            </p>
+                        </div>
+                        <div class="about-card">
+                            <h3 class="about-card-title">Our Team</h3>
+                            <p class="about-card-content">
+                                Our team comprises world-class engineers, researchers, and industry veterans with decades of 
+                                experience in semiconductor design, system architecture, and software development. We combine 
+                                diverse expertise to tackle the most challenging problems in computing.
+                            </p>
+                        </div>
+                        <div class="about-card">
+                            <h3 class="about-card-title">Our Values</h3>
+                            <p class="about-card-content">
+                                Innovation, excellence, and integrity are at the core of everything we do. We believe in 
+                                creating sustainable technology that respects privacy, promotes efficiency, and enables 
+                                human creativity. Our commitment to ethical development guides all our decisions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section class="contact-section" id="contact">
+                <div class="contact-bg"></div>
+                <div class="contact-content">
+                    <div class="section-header">
+                        <h2 class="section-title">Connect With Us</h2>
+                        <p class="section-subtitle">
+                            Interested in learning more about our femto computing solutions? Reach out to our team.
+                        </p>
+                    </div>
+                    <div class="contact-form-container">
+                        <form id="contact-form">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" id="name" class="form-input" placeholder="Your name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" class="form-input" placeholder="Your email address" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="subject" class="form-label">Subject</label>
+                                <input type="text" id="subject" class="form-input" placeholder="What's this about?">
+                            </div>
+                            <div class="form-group">
+                                <label for="message" class="form-label">Message</label>
+                                <textarea id="message" class="form-textarea" placeholder="Your message" required></textarea>
+                            </div>
+                            <button type="submit" class="form-submit">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="footer-logo">
+                    <div class="logo-icon">K</div>
+                    <div class="logo-text">Konomi Systems</div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-link-group">
+                        <h4 class="footer-link-title">Products</h4>
+                        <ul class="footer-link-list">
+                            <li class="footer-link"><a href="#">Femto Compute</a></li>
+                            <li class="footer-link"><a href="#">KonomOS</a></li>
+                            <li class="footer-link"><a href="#">Tiny-LLM</a></li>
+                            <li class="footer-link"><a href="#">eVGPU</a></li>
+                            <li class="footer-link"><a href="#">Tensor Engine</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-group">
+                        <h4 class="footer-link-title">Technology</h4>
+                        <ul class="footer-link-list">
+                            <li class="footer-link"><a href="#">Architecture</a></li>
+                            <li class="footer-link"><a href="#">Research</a></li>
+                            <li class="footer-link"><a href="#">White Papers</a></li>
+                            <li class="footer-link"><a href="#">Patents</a></li>
+                            <li class="footer-link"><a href="#">Standards</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-group">
+                        <h4 class="footer-link-title">Company</h4>
+                        <ul class="footer-link-list">
+                            <li class="footer-link"><a href="#">About Us</a></li>
+                            <li class="footer-link"><a href="#">Leadership</a></li>
+                            <li class="footer-link"><a href="#">Careers</a></li>
+                            <li class="footer-link"><a href="#">Press</a></li>
+                            <li class="footer-link"><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-group">
+                        <h4 class="footer-link-title">Resources</h4>
+                        <ul class="footer-link-list">
+                            <li class="footer-link"><a href="#">Documentation</a></li>
+                            <li class="footer-link"><a href="#">Developer Portal</a></li>
+                            <li class="footer-link"><a href="#">Support</a></li>
+                            <li class="footer-link"><a href="#">FAQs</a></li>
+                            <li class="footer-link"><a href="#">Community</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <div class="footer-copyright">
+                        &copy; 2025 Konomi Systems. All rights reserved.
+                    </div>
+                    <div class="social-links">
+                        <a href="#" class="social-link">T</a>
+                        <a href="#" class="social-link">L</a>
+                        <a href="#" class="social-link">G</a>
+                        <a href="#" class="social-link">Y</a>
+                    </div>
+                </div>
+            </footer>
         </div>
     </div>
-
-    <div class="status-bar">
-        <div>Konomi Femto v1.0.0</div>
-        <div>Ready</div>
-    </div>
-    <!-- Monaco Editor (Load from CDN for the demo) -->
-    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs/loader.js">
-    const compressedDatabases = {
-  "pcs_hardware": "H4sIAHY2EWgC/6VVbXOiMBD+Kxm+XlVAoPa+UdCWO7WcUudubjpOClEzB4QLidZ2+t8vCa2HLbZ1+kXJZvPs7rNvD1pMckZJmiJaal/B7wcNJ+JfK9K4ZWgnQMthhqTAq/SGZInvgG33dHmZwZwvYMw4RVQquQInb51TmKRoKxXigku50e5dXN6DHxwmwCMUqbcoI3Qrby19dC4lmMxjWMAYMynu6bouEUiW8RzHkGGSSw+1PlshOkasE4Ty1ZNjQiBPPlrjGMnDjThRlPA8gXksARnlSMgWmGYbSNF8LUKuMLV112wbKtwYUYYXdXPB1AVTFPPK66DvAce0rK48uPEKi4hLMERrlAJTu3k8AXUGzTqD02DkRoEHpqctw9Yb+ZtilKG83GPOlsz5HKYNzHXNJuacQ8yFk6tBMO5H8on6Pr+eyu8RSW55CSIvPI41s33WNo9j7SVD3TpDv8gfsoQbCLz+OLoegVnYRNKz1h5Lzhv1ZTgXDSzZh1ia5bvaqoiRXwMiKZE6YIBRqsTHcDVx2nrvWKpuKqczknBRZfX2xKTqTrYtFHM+XmImSiTIC676IF7BPEepfGQ44rwmKYNLpWtaM9/TankQYGYT2BVnH0WTOpxSlDMp09u2+8JAt27AzWFKlo3O9hSnJUn5Ez8ie61brNRKvBQP1cRomXr20oTVYKIxhE/YsOs2JpHfGIP1Ct+0dviivQmdP0OEkaHrHfWrvzDl1E1FYuRlJCa8SNFnbUbiH3zvfOtEnb6makwU/IbQP3P0l+Miq5K4KzVxub8JpoyK4hVLwNI/tgQKQtmudMoCIYVrXNwWqrX+t9C8oISJKBX//nBSOS8KS3TsfIGgNKHaQBtgijYwTaXG2FUDbRaO1Uz2huXelJH+789hzx26Y68PfnarlnxjCj+73jvG89EkPNrzqtlXGW5OgrjYT0IIReJnGG1AmIrRffqhRCS4LFK4nZf4XoEYNsB5vNJe94NuWnenjmKHER6vdsUzQSUuGV6rWfXubvYHymn/8steSmQ0javRI9lCMA5UdO+k5lUwZ4eC6TpOczBetQ0ORnNwX4aBTNjjP20lXDk+CQAA",
-  "femto_architecture": "H4sIAHY2EWgC/62Ub2/aMBDGv4qVV5tEKTEJRbzjj6DVyEZpC5MmhFJjwFpiZ46jllb97rszgyWQoL3Yq9jnw3e/5znz7iRaMZ6mSqdOh/x4d8QKvs6ax0ZduU6NODKMOYaGGCJ9pTlGQ822wnBmMm1Pp3cP/asZnjDIwLs8WK81/5VxyXaY4tbp6PbNpoRsa381djukSb/0amRMO8R3YYnnMY+V3i2ZkkarKOIac++k4RsdGr4ig8HUw7xEvXCNaWkWJ0YoiXmNentuD/dgS6lWttaNjJ2PGjkQJoKdAE4gUsnXnQZ4ZvjrVfemledsn3LSulfG2fIOnG6AiyZIFPwz7vV4gp/vldi07pdi+4i9+FvF7BJesBriZUZPuwEGMd0SYHl/D5WETBiL6o0swHMoVy9iZba2IPhMRr3rFE8iADjYT2V6wTRvnncHm6Jn5pz0VNaR2yppyW2AJ6U9NS70BBzzvXRMxUlm+DKTwhS0Y1mZdHw2mjxVPxIyg4jSTu5iW9+6SB6H42+TB/JpOHFbn/Nz5tL20UWbOuqR215AcxNUgKZ+64hcwbefmDUPsUEL5gSh0eKVBFlkRBIJFtpsyHpUP7kUb8f9fRZKc9gvctaBJufOVUrSfxp04WHFCVz0HPFSUdpFUWrEywWatKhSg3oFmdp/ZOJVOsG/zmWd/ptKsO8amD3ckICzbShFGoN4OGMC3ruGyhK0KcyYYGUz9lX17VNQiYrUxpIGPN2WjH6jcvBzpkGRc9NKakyF3JzVoOU1fCyx+PgN18BEvmMGAAA=",
-  "api_schemas": "H4sIAHY2EWgC/7VUTW/bMAz9K4LOQ9Neex2GYKcVW7fLUBiKzMQcrI9JVLY2yH+fxDhG3Dpx622+WDYfKfI9Pe2kTiuolEd5K3ZyCyGis3ktb66ur67lOyFXKkKVQlt+LjJwsb1ZlKQSA1t7h5ZiDn7fSa+oYRhaJFQtPjHKADWuLoG7T1/uy58aog7oqdvrYw8XSlj4JUp9gTaSsppLBPiZIFIVdQNGca/06KEku9UP0FRAPjgPgRAiA6wyMEBGCmg3cl8aQAO2jBoHCBWCeiylkMAMQ3lK2ECQ+5Lez6fKCFWHebETM5RMIUc+QXA8ibK1M2WlU6S8euCKZUAMUDOWOx92+XAARZ8/4E00sMBYn2Mic0wpjkb3pbMTVWOL+pmgyw9jei6BspAMF24tqAFxPDFzhJyYoGdpXC+Wq4bf59UccH/cbFC4rzFfhlqRGjlrf3sY88M9wXbj05t9zFmXjKwDKMp8nFhx0s3vOadzMnxb3n39r1aOWrWT7luDIbafR81vqyy/DerQLdoWD/oaV08WRLuGAN1IFFS+ETLigpcPbc4/P0cK/42VQ7LVYIRJVT8nK/oM4Sy7mtWdK+orJipKtNUl9dH6RNU5c71Q43TPYf1hrfk65aTU0hmnZ+DaBcNWeCVHHeMV4TMS8klcdfcbNcGlTZO7H0V0t8T+D9nmqHrtBwAA",
-  "llm_models": "H4sIAHY2EWgC/6WUTW/CMAyG/0rVM7Am/Qo7bhK7gLQDtwmhUAxEJCmkqTaG+t8XU2lq1W6o4lT5tZ1aj1776u9A2Xyt8i3Iwn/2Pq6+2LpvrY+lVGPijzxfcwUoz25y+oLaiRunWjDY6KfeRkgpco0pbrKDsJDZ0tzalobrYpcbBQbTWa4tfNm1BL23B1cQBdPE6eeSayu+ucVnXFs03giLDULvwIDOYF2cAG4D0sCz+RF08VRghQKVm8vawLkUpq4IJ/FbPSgY/DfHfjewERlOfPUPICUvPvneRcEkxQmUkuUtSpiL9oVixzpJq2rkdeHQLpywB074CBwaRGwgnDC+B4cMhENacFpskrDJxgp9QTRNMEvU5vNFF0wyST31N5q55IrPcvPKy4LL+oEOHxLQqIcPSf4BFN91TxwsBvCJaZNPFLcAhayqVviUyPpWDeXupr2jSvrMRB5yEyNTOtBN5K6b0iFeYlGTVdpmxZpe+iVDO2TSoO8GBY+QCWmaDF00dvcIDVqzactGrL1nU3eDVtUPlLTc5LMFAAA=",
-  "tiny_llm": "H4sIAHY2EWgC/22U3Y7aMBCFXyXKdVmcAOFHaKXutitVojdt79oqGhwDFokd2Q6Forx7PRMnsN294zsznjkzNrnGlXBQgIN4FV3jQlhuZO2kVp7jH1JdRpvN16jShSgjqXbaVEDRD1HMjQAnCkxMWTobsemIzTFwEsaGCskDi1svDR0UVOK+9Nt8f8JrVjeGU+bBudquxuNDs99Ltd8BFw9cj8Eoadj4vo44OwPcW8p9O/HWFxh+kE5w1xhBZtylprSyhApopBKsRWWDyos2z9BYKLvyB1kUQuVW/sVDyTL1mlROmEoU0jccIiyd+pBqqryEi58NtSAcBBTIaeDjaZAw5aQ5bPs6k5Qx5sUKznmtrcS956LaiqLwe7C3TsGYHx2tW1k2tHPr/FVZJ7mlYWswfvfebs51ozA1yxbTbI5W6H7znSyHIdLZcr7IqLzTR6G8al4lJIvpJM2S9j6B+rw7A6XkFqq67Fa/btTx0f/C4No+hvnXY/qJltbszBjCJECCMA2QIswCTBCyAFOEeYAZwiJAhrAMMKeWLNCCKAm0JOpNfCTqXTwR9TaeiXofn4h6I5+JeicvRMFKQoMlS7qlWnAJZU4b6m5qq22HeJ24HHzbr7RxJ/od3om00RZr1kZXtcud8Ov2DxOr/rz99Z7ASo7H+ziK1+5Mi/p/XwHKj7p41J+J/kh30I2LQF2i7rPg/KvEh3fr9EVZZxrefzDu+92F/Mih+S/1TdhaKytW7/j4LvH1+K/QcHK0BSuKwVPc/m7bf0P7xA7SBAAA"
-};</script>
 
     <script>
-        // Initialize the Konomi Femto Environment
         document.addEventListener('DOMContentLoaded', function() {
-            // Simulated loading progress
-            const loader = document.getElementById('loader');
-            const progress = document.getElementById('progress');
-            let progressValue = 0;
+            // Start boot sequence
+            startBootSequence();
             
-            function updateProgress(value) {
-                progressValue = value;
-                progress.style.width = `${progressValue}%`;
-                
-                if (progressValue >= 100) {
-                    setTimeout(() => {
-                        loader.style.opacity = '0';
-                        setTimeout(() => {
-                            loader.style.display = 'none';
-                        }, 300);
-                    }, 500);
-                }
-            }
-            
-            // Simulate loading operations
-            setTimeout(() => {
-                updateProgress(15);
-                document.querySelector('.loader-text').textContent = 'Loading database components...';
-            }, 500);
-            
-            setTimeout(() => {
-                updateProgress(35);
-                document.querySelector('.loader-text').textContent = 'Initializing compilers...';
-            }, 1000);
-            
-            setTimeout(() => {
-                updateProgress(60);
-                document.querySelector('.loader-text').textContent = 'Registering agent capabilities...';
-            }, 1500);
-            
-            setTimeout(() => {
-                updateProgress(85);
-                document.querySelector('.loader-text').textContent = 'Starting Konomi Server...';
-            }, 2000);
-            
-            setTimeout(() => {
-                updateProgress(100);
-                document.querySelector('.loader-text').textContent = 'Environment ready!';
-            }, 2500);
-            
-            // Tab switching functionality
-            const tabs = document.querySelectorAll('.tab');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Remove active class from all tabs
-                    tabs.forEach(t => t.classList.remove('active'));
-                    
-                    // Add active class to clicked tab
-                    tab.classList.add('active');
-                    
-                    // Hide all tab contents
-                    tabContents.forEach(content => {
-                        content.classList.add('hidden');
-                    });
-                    
-                    // Show the selected tab content
-                    const tabName = tab.getAttribute('data-tab');
-                    document.getElementById(`${tabName}Content`).classList.remove('hidden');
-                });
-            });
-            
-            // Agent selection
-            const agentList = document.querySelectorAll('.agent-item');
-            const currentAgentName = document.getElementById('currentAgentName');
-            
-            agentList.forEach(agent => {
-                agent.addEventListener('click', () => {
-                    // Remove active class from all agents
-                    agentList.forEach(a => a.classList.remove('active'));
-                    
-                    // Add active class to clicked agent
-                    agent.classList.add('active');
-                    
-                    // Update current agent name
-                    const agentId = agent.getAttribute('data-agent');
-                    currentAgentName.textContent = agent.textContent.trim();
-                    
-                    // If on the agents tab, also update chat history
-                    if (document.querySelector('.tab.active').getAttribute('data-tab') === 'agents') {
-                        updateChatForAgent(agentId);
-                    }
-                });
-            });
-            
-            // Chat functionality
-            const chatContainer = document.getElementById('chatContainer');
-            const messageInput = document.getElementById('messageInput');
-            const sendButton = document.getElementById('sendMessage');
-            
-            function updateChatForAgent(agentId) {
-                // Clear existing chat
-                chatContainer.innerHTML = '';
-                
-                // Add appropriate welcome message based on agent
-                let welcomeMessage = '';
-                switch(agentId) {
-                    case 'assistant':
-                        welcomeMessage = "Hello! I'm the Konomi Assistant. How can I help you today?";
-                        break;
-                    case 'coder':
-                        welcomeMessage = "I'm the Code Generator. Tell me what you'd like me to code, and I'll help you implement it.";
-                        break;
-                    case 'analyzer':
-                        welcomeMessage = "I'm the Data Analyzer. I can help analyze data patterns, create visualizations, and extract insights.";
-                        break;
-                    case 'search':
-                        welcomeMessage = "I'm the Search Engine. I can help you find information and resources on any topic.";
-                        break;
-                    case 'python':
-                        welcomeMessage = "Python 3.10 interpreter ready. What would you like to run?";
-                        break;
-                    case 'js':
-                        welcomeMessage = "JavaScript runtime environment initialized. What code would you like to execute?";
-                        break;
-                    case 'ruby':
-                        welcomeMessage = "Ruby 3.1 interpreter ready. Enter your code to execute.";
-                        break;
-                    case 'cpp':
-                        welcomeMessage = "C++ compiler (C++17) ready. Enter your code to compile and run.";
-                        break;
-                    default:
-                        welcomeMessage = "Hello! How can I help you today?";
-                }
-                
-                // Add welcome message
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', 'agent');
-                messageElement.textContent = welcomeMessage;
-                chatContainer.appendChild(messageElement);
-            }
-            
-            function addUserMessage(message) {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', 'user');
-                messageElement.textContent = message;
-                chatContainer.appendChild(messageElement);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-            
-            function addAgentResponse(response) {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', 'agent');
-                messageElement.textContent = response;
-                chatContainer.appendChild(messageElement);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-            
-            function generateResponse(agentId, message) {
-                // Simulate response based on agent type and message
-                switch(agentId) {
-                    case 'assistant':
-                        if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
-                            return "Hello! I'm here to help. What can I assist you with today?";
-                        } else if (message.toLowerCase().includes('help')) {
-                            return "I can provide information, answer questions, or assist with various tasks. What do you need help with?";
-                        } else {
-                            return "I understand your query. In a full implementation, I would provide a detailed and helpful response based on my training data and capabilities.";
-                        }
-                    case 'coder':
-                        if (message.toLowerCase().includes('python')) {
-                            return "Here's a Python function that might help:\n\n```python\ndef process_data(items):\n    results = []\n    for item in items:\n        if isinstance(item, (int, float)):\n            results.append(item * 2)\n        elif isinstance(item, str):\n            results.append(item.upper())\n    return results\n\n# Example usage\ndata = [5, \"hello\", 7.5, \"world\"]\nprint(process_data(data))\n```";
-                        } else if (message.toLowerCase().includes('javascript') || message.toLowerCase().includes('js')) {
-                            return "Here's a JavaScript function that might be useful:\n\n```javascript\nfunction processData(items) {\n    return items.map(item => {\n        if (typeof item === 'number') {\n            return item * 2;\n        } else if (typeof item === 'string') {\n            return item.toUpperCase();\n        }\n        return item;\n    });\n}\n\n// Example usage\nconst data = [5, \"hello\", 7.5, \"world\"];\nconsole.log(processData(data));\n```";
-                        } else {
-                            return "I can help you generate code. Please specify which programming language you'd like to use and what functionality you need.";
-                        }
-                    case 'analyzer':
-                        return "Based on the analysis of your data, I can see several patterns:\n\n1. There's a strong correlation between variables X and Y (correlation coefficient: 0.87)\n2. The time series shows a clear upward trend with seasonal variations\n3. There are several outliers that should be addressed\n\nWould you like me to generate visualizations for these findings?";
-                    case 'search':
-                        return "Here are the top results for your query:\n\n1. [Comprehensive Guide to " + message + "](https://example.com/guide)\n2. [Best Practices for " + message + "](https://example.com/best-practices)\n3. [Tutorial: " + message + " for Beginners](https://example.com/tutorial)\n\nThese resources should provide the information you're looking for.";
-                    case 'python':
-                        return "Python output:\n```\n>>> " + message + "\n" + (message.includes('print') ? message.replace('print(', '').replace(')', '') : "[Code executed without output]") + "\n```";
-                    case 'js':
-                        return "JavaScript output:\n```\n> " + message + "\n" + (message.includes('console.log') ? message.replace('console.log(', '').replace(')', '') : "[Code executed without output]") + "\n```";
-                    default:
-                        return "I've processed your request and have results ready.";
-                }
-            }
-            
-            sendButton.addEventListener('click', () => {
-                const message = messageInput.value.trim();
-                if (message) {
-                    // Get current agent
-                    const currentAgent = document.querySelector('.agent-item.active');
-                    const agentId = currentAgent ? currentAgent.getAttribute('data-agent') : 'assistant';
-                    
-                    // Add user message
-                    addUserMessage(message);
-                    
-                    // Clear input
-                    messageInput.value = '';
-                    
-                    // Simulate processing delay
-                    setTimeout(() => {
-                        // Generate and add response
-                        const response = generateResponse(agentId, message);
-                        addAgentResponse(response);
-                    }, 500);
-                }
-            });
-            
-            messageInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendButton.click();
-                }
-            });
-            
-            // Console command functionality
-            const consoleInput = document.getElementById('consoleInput');
-            const runCommandButton = document.getElementById('runCommand');
-            const workspaceConsole = document.getElementById('workspaceConsole');
-            
-            function addConsoleOutput(command, output) {
-                const commandLine = document.createElement('div');
-                commandLine.classList.add('console-line');
-                commandLine.textContent = '> ' + command;
-                workspaceConsole.appendChild(commandLine);
-                
-                if (output) {
-                    const outputLine = document.createElement('div');
-                    outputLine.classList.add('console-line');
-                    outputLine.textContent = output;
-                    workspaceConsole.appendChild(outputLine);
-                }
-                
-                workspaceConsole.scrollTop = workspaceConsole.scrollHeight;
-            }
-            
-            function processCommand(command) {
-                // Process common commands
-                if (command.toLowerCase() === 'help') {
-                    return "Available commands:\n- help: Show this help message\n- run <filename>: Run a file\n- list: List files in current directory\n- clear: Clear the console\n- status: Show system status\n- exit: Exit the current session";
-                } else if (command.toLowerCase().startsWith('run ')) {
-                    const filename = command.slice(4).trim();
-                    return `Running ${filename}...\nExecution complete.`;
-                } else if (command.toLowerCase() === 'list') {
-                    return "main.py\nagent.py\ndatabase.py\nconfig.json\n";
-                } else if (command.toLowerCase() === 'clear') {
-                    workspaceConsole.innerHTML = '';
-                    return null;
-                } else if (command.toLowerCase() === 'status') {
-                    return "System Status:\n- Konomi Femto v1.0.0\n- 4 agents loaded\n- 4 databases connected\n- All compilers operational\n- Server: localhost:8080";
-                } else if (command.toLowerCase() === 'exit') {
-                    return "Session remains active. This is a browser-based demo.";
-                } else if (command.toLowerCase().startsWith('python ')) {
-                    const code = command.slice(7).trim();
-                    return `Executing Python code...\n${code.includes('print') ? code.replace('print(', '').replace(')', '') : "[Code executed without visible output]"}`;
-                } else if (command.toLowerCase().startsWith('import ')) {
-                    return `Module imported successfully.`;
-                } else if (command.toLowerCase().startsWith('create ')) {
-                    return `Created successfully.`;
-                } else {
-                    return `Command not recognized: ${command}`;
-                }
-            }
-            
-            runCommandButton.addEventListener('click', () => {
-                const command = consoleInput.value.trim();
-                if (command) {
-                    const output = processCommand(command);
-                    addConsoleOutput(command, output);
-                    consoleInput.value = '';
-                }
-            });
-            
-            consoleInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    runCommandButton.click();
-                }
-            });
-            
-            // Toggle server button
-            const toggleServerButton = document.getElementById('toggleServer');
-            let serverRunning = false;
-            
-            toggleServerButton.addEventListener('click', () => {
-                serverRunning = !serverRunning;
-                if (serverRunning) {
-                    toggleServerButton.textContent = 'Stop Server';
-                    toggleServerButton.style.backgroundColor = 'var(--error-color)';
-                    
-                    // Add console output
-                    const mainConsole = document.getElementById('mainConsole');
-                    const serverStartLine = document.createElement('div');
-                    serverStartLine.classList.add('console-line');
-                    serverStartLine.textContent = '> Server started on http://localhost:8080';
-                    mainConsole.appendChild(serverStartLine);
-                    mainConsole.scrollTop = mainConsole.scrollHeight;
-                    
-                    // Update status bar
-                    document.querySelector('.status-bar div:last-child').textContent = 'Server running on port 8080';
-                } else {
-                    toggleServerButton.textContent = 'Start Server';
-                    toggleServerButton.style.backgroundColor = '';
-                    
-                    // Add console output
-                    const mainConsole = document.getElementById('mainConsole');
-                    const serverStopLine = document.createElement('div');
-                    serverStopLine.classList.add('console-line');
-                    serverStopLine.textContent = '> Server stopped';
-                    mainConsole.appendChild(serverStopLine);
-                    mainConsole.scrollTop = mainConsole.scrollHeight;
-                    
-                    // Update status bar
-                    document.querySelector('.status-bar div:last-child').textContent = 'Ready';
-                }
-            });
-            
-            // Tree view toggles
-            const treeToggles = document.querySelectorAll('.tree-toggle');
-            
-            treeToggles.forEach(toggle => {
-                toggle.addEventListener('click', () => {
-                    const content = toggle.nextElementSibling;
-                    
-                    // Toggle visibility
-                    content.classList.toggle('hidden');
-                    
-                    // Update toggle indicator
-                    if (content.classList.contains('hidden')) {
-                        toggle.textContent = toggle.textContent.replace('▼', '►');
-                    } else {
-                        toggle.textContent = toggle.textContent.replace('►', '▼');
-                    }
-                });
-            });
-            
-            // Panel resizer
-            const panelResizer = document.getElementById('panelResizer');
-            const workspacePanels = document.querySelectorAll('.workspace-panel');
-            
-            let isResizing = false;
-            
-            panelResizer.addEventListener('mousedown', (e) => {
-                isResizing = true;
-                document.addEventListener('mousemove', resizePanel);
-                document.addEventListener('mouseup', stopResizing);
-            });
-            
-            function resizePanel(e) {
-                if (!isResizing) return;
-                
-                const container = document.querySelector('.split-view');
-                const containerRect = container.getBoundingClientRect();
-                const leftPanelPercentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-                
-                // Limit resize range
-                if (leftPanelPercentage > 20 && leftPanelPercentage < 80) {
-                    workspacePanels[0].style.flex = `0 0 ${leftPanelPercentage}%`;
-                    workspacePanels[1].style.flex = `0 0 ${100 - leftPanelPercentage}%`;
-                }
-            }
-            
-            function stopResizing() {
-                isResizing = false;
-                document.removeEventListener('mousemove', resizePanel);
-                document.removeEventListener('mouseup', stopResizing);
-            }
-            
-            // Initialize Monaco Editor
-            require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs' }});
-            require(['vs/editor/editor.main'], function() {
-                const editor = monaco.editor.create(document.getElementById('editor'), {
-                    value: document.getElementById('editor').textContent,
-                    language: 'python',
-                    theme: 'vs-dark',
-                    automaticLayout: true,
-                    minimap: {
-                        enabled: true
-                    }
-                });
-                
-                // Handle tab switching in editor
-                const editorTabs = document.querySelectorAll('.editor-tab');
-                
-                editorTabs.forEach(tab => {
-                    tab.addEventListener('click', () => {
-                        // Remove active class from all tabs
-                        editorTabs.forEach(t => t.classList.remove('active'));
-                        
-                        // Add active class to clicked tab
-                        tab.classList.add('active');
-                        
-                        // Set language and content based on tab
-                        const filename = tab.textContent.trim();
-                        let language = 'plaintext';
-                        let content = '';
-                        
-                        if (filename.endsWith('.py')) {
-                            language = 'python';
-                            if (filename === 'main.py') {
-                                content = document.getElementById('editor').textContent;
-                            } else if (filename === 'agent.py') {
-                                content = 'class Agent:\n    """Intelligent agent for performing specific tasks"""\n    \n    def __init__(self, name, role):\n        self.name = name\n        self.role = role\n        self.memory = []\n    \n    def process_message(self, message):\n        """Process a user message and generate a response"""\n        # Implementation details would go here\n        return {"content": f"Processed message: {message}"}\n';
-                            }
-                        } else if (filename.endsWith('.json')) {
-                            language = 'json';
-                            content = '{\n    "system": {\n        "name": "Konomi Femto",\n        "version": "1.0.0",\n        "max_agents": 8,\n        "token_limit": 8192\n    },\n    "databases": {\n        "embeddings": {"size_mb": 125, "encrypted": true},\n        "agent_memory": {"size_mb": 43, "encrypted": false},\n        "token_store": {"size_mb": 214, "encrypted": true},\n        "context_vectors": {"size_mb": 72, "encrypted": false}\n    }\n}';
-                        } else if (filename === 'database.py') {
-                            language = 'python';
-                            content = 'import sqlite3\n\nclass TokenizedDatabase:\n    """Database for storing and retrieving tokenized data"""\n    \n    def __init__(self, name, size_mb, encrypted=False):\n        self.name = name\n        self.size_mb = size_mb\n        self.encrypted = encrypted\n        self.connection = None\n        self._initialize_database()\n    \n    def _initialize_database(self):\n        """Initialize the in-memory database"""\n        self.connection = sqlite3.connect(":memory:")\n        # Implementation details would go here\n    \n    def query(self, query_string):\n        """Execute a query against the database"""\n        try:\n            cursor = self.connection.cursor()\n            cursor.execute(query_string)\n            results = cursor.fetchall()\n            return {"success": True, "results": results}\n        except Exception as e:\n            return {"success": False, "error": str(e)}\n';
-                        }
-                        
-                        editor.setValue(content);
-                        monaco.editor.setModelLanguage(editor.getModel(), language);
-                    });
-                });
-                
-                // Initialize main console commands
-                const mainConsoleInput = document.getElementById('mainConsoleInput');
-                const executeCommandButton = document.getElementById('executeCommand');
-                const mainConsole = document.getElementById('mainConsole');
-                
-                function addMainConsoleOutput(command, output) {
-                    const commandLine = document.createElement('div');
-                    commandLine.classList.add('console-line');
-                    commandLine.textContent = '$ ' + command;
-                    mainConsole.appendChild(commandLine);
-                    
-                    if (output) {
-                        const outputLine = document.createElement('div');
-                        outputLine.classList.add('console-line');
-                        outputLine.textContent = output;
-                        mainConsole.appendChild(outputLine);
-                    }
-                    
-                    mainConsole.scrollTop = mainConsole.scrollHeight;
-                }
-                
-                function processMainCommand(command) {
-                    if (command.toLowerCase() === 'help') {
-                        return "Available system commands:\n- help: Show this help message\n- status: Show system status\n- list agents: List all registered agents\n- list dbs: List all databases\n- start server: Start the Konomi server\n- stop server: Stop the Konomi server\n- clear: Clear the console";
-                    } else if (command.toLowerCase() === 'status') {
-                        return "Konomi Femto System Status:\n- Version: 1.0.0\n- Agents: 4 registered (assistant, coder, analyzer, search)\n- Databases: 4 connected (total size: 454MB)\n- Compilers: python, javascript, ruby, cpp\n- Server: " + (serverRunning ? "Running on port 8080" : "Stopped");
-                    } else if (command.toLowerCase() === 'list agents') {
-                        return "Registered Agents:\n1. assistant: General Assistant\n2. coder: Code Generator\n3. analyzer: Data Analyzer\n4. search: Search Engine";
-                    } else if (command.toLowerCase() === 'list dbs') {
-                        return "Connected Databases:\n1. embeddings: 125MB (encrypted)\n2. agent_memory: 43MB\n3. token_store: 214MB (encrypted)\n4. context_vectors: 72MB";
-                    } else if (command.toLowerCase() === 'start server') {
-                        if (!serverRunning) {
-                            toggleServerButton.click();
-                        }
-                        return "Server started on http://localhost:8080";
-                    } else if (command.toLowerCase() === 'stop server') {
-                        if (serverRunning) {
-                            toggleServerButton.click();
-                        }
-                        return "Server stopped";
-                    } else if (command.toLowerCase() === 'clear') {
-                        mainConsole.innerHTML = '';
-                        return null;
-                    } else if (command.toLowerCase().startsWith('query ')) {
-                        const parts = command.slice(6).split(' ');
-                        if (parts.length >= 2) {
-                            const dbName = parts[0];
-                            return `Executed query on ${dbName} database. Result: 4 records returned.`;
-                        } else {
-                            return "Usage: query <database_name> <sql_query>";
-                        }
-                    } else {
-                        return `Command not recognized: ${command}`;
-                    }
-                }
-                
-                executeCommandButton.addEventListener('click', () => {
-                    const command = mainConsoleInput.value.trim();
-                    if (command) {
-                        const output = processMainCommand(command);
-                        addMainConsoleOutput(command, output);
-                        mainConsoleInput.value = '';
-                    }
-                });
-                
-                mainConsoleInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        executeCommandButton.click();
-                    }
-                });
-            });
+            // Setup contact form
+            setupContactForm();
         });
+        
+        function startBootSequence() {
+            const bootScreen = document.getElementById('boot-screen');
+            const bootProgressBar = document.getElementById('boot-progress-bar');
+            const bootMessage = document.getElementById('boot-message');
+            const bootTerminal = document.getElementById('boot-terminal');
+            const bootButton = document.getElementById('boot-button');
+            const osContainer = document.getElementById('os-container');
+            
+            let progress = 0;
+            let currentPhase = 0;
+            
+            // Boot phases and their messages
+            const bootPhases = [
+                {
+                    progress: 5,
+                    message: "Initializing Konomi Femto OS kernel",
+                    terminalLines: [
+                        { text: "Konomi Femto OS v4.0.2 (April 2025)", type: "info" },
+                        { text: "Copyright (c) 2023-2025 Konomi Systems, Inc.", type: "info" },
+                        { text: "BIOS version: KNM-FB0421", type: "info" },
+                        { text: "CPU: RISC-V Femto Core 8x @ 1.2GHz", type: "info" },
+                        { text: "Memory: 4GB HBM2 detected", type: "info" },
+                        { text: "Initializing kernel...", type: "normal" }
+                    ]
+                },
+                {
+                    progress: 20,
+                    message: "Loading system components",
+                    terminalLines: [
+                        { text: "Loading kernel modules...", type: "normal" },
+                        { text: "Module 'femto_core.sys' loaded", type: "success" },
+                        { text: "Module 'mem_controller.sys' loaded", type: "success" },
+                        { text: "Module 'io_subsystem.sys' loaded", type: "success" },
+                        { text: "Module 'gpu_driver.sys' loaded", type: "success" },
+                        { text: "Module 'net_stack.sys' loaded", type: "success" },
+                        { text: "All system modules loaded successfully", type: "success" }
+                    ]
+                },
+                {
+                    progress: 35,
+                    message: "Initializing hardware subsystems",
+                    terminalLines: [
+                        { text: "Detecting hardware...", type: "normal" },
+                        { text: "CPU cores online: 8/8", type: "success" },
+                        { text: "Memory controller initialized", type: "success" },
+                        { text: "Tensor Engine detected and initialized", type: "success" },
+                        { text: "eVGPU initialized", type: "success" },
+                        { text: "Network interfaces detected: 2", type: "success" },
+                        { text: "Audio subsystem initialized", type: "success" },
+                        { text: "Storage controller initialized", type: "success" }
+                    ]
+                },
+                {
+                    progress: 50,
+                    message: "Starting system services",
+                    terminalLines: [
+                        { text: "Starting system services...", type: "normal" },
+                        { text: "Service 'security_manager' started [PID 241]", type: "success" },
+                        { text: "Service 'device_manager' started [PID 242]", type: "success" },
+                        { text: "Service 'power_manager' started [PID 243]", type: "success" },
+                        { text: "Service 'network_service' started [PID 244]", type: "success" },
+                        { text: "Service 'ui_service' started [PID 245]", type: "success" },
+                        { text: "Service 'llm_service' started [PID 246]", type: "success" },
+                        { text: "All services started successfully", type: "success" }
+                    ]
+                },
+                {
+                    progress: 65,
+                    message: "Initializing Tiny-LLM engine",
+                    terminalLines: [
+                        { text: "Loading Tiny-LLM engine...", type: "normal" },
+                        { text: "Model 'tiny-llm-7b' initialization started", type: "normal" },
+                        { text: "Loading model weights from storage...", type: "normal" },
+                        { text: "Quantizing model to INT8 precision...", type: "normal" },
+                        { text: "Uploading model to tensor accelerator...", type: "normal" },
+                        { text: "Calibrating inference pipeline...", type: "normal" },
+                        { text: "Tiny-LLM model loaded successfully", type: "success" },
+                        { text: "AI subsystem ready", type: "success" }
+                    ]
+                },
+                {
+                    progress: 80,
+                    message: "Loading user interface",
+                    terminalLines: [
+                        { text: "Initializing UI subsystem...", type: "normal" },
+                        { text: "Loading UI components...", type: "normal" },
+                        { text: "Loading theme: Konomi-Dark", type: "success" },
+                        { text: "Initializing window manager...", type: "normal" },
+                        { text: "Preparing application containers...", type: "normal" },
+                        { text: "Loading system fonts...", type: "normal" },
+                        { text: "Preparing rendering pipeline...", type: "normal" },
+                        { text: "UI system initialized", type: "success" }
+                    ]
+                },
+                {
+                    progress: 95,
+                    message: "Performing system checks",
+                    terminalLines: [
+                        { text: "Running system diagnostics...", type: "normal" },
+                        { text: "CPU diagnostics: PASSED", type: "success" },
+                        { text: "Memory diagnostics: PASSED", type: "success" },
+                        { text: "Storage diagnostics: PASSED", type: "success" },
+                        { text: "Network diagnostics: PASSED", type: "success" },
+                        { text: "Security verification: PASSED", type: "success" },
+                        { text: "System integrity check: PASSED", type: "success" },
+                        { text: "All diagnostics completed successfully", type: "success" }
+                    ]
+                },
+                {
+                    progress: 100,
+                    message: "System ready!",
+                    terminalLines: [
+                        { text: "Konomi Femto OS boot sequence completed", type: "success" },
+                        { text: "System initialized in 3.24 seconds", type: "info" },
+                        { text: "Memory usage: 682MB / 4096MB", type: "info" },
+                        { text: "Tensor Engine: Online", type: "success" },
+                        { text: "Femto Core Utilization: 8%", type: "info" },
+                        { text: "Awaiting user interaction...", type: "normal" },
+                        { text: "Ready to launch KonomOS interface", type: "success" },
+                        { text: "Press ENTER to continue...", type: "blinking-cursor" }
+                    ]
+                }
+            ];
+            
+            // Handle initial terminal messages
+            addTerminalLine("Starting Konomi Femto OS...", "info");
+            addTerminalLine("KONOMI SYSTEMS (c) 2025", "info");
+            addTerminalLine("---------------------------", "normal");
+            
+            // Start boot progress animation
+            const bootInterval = setInterval(() => {
+                if (progress < bootPhases[currentPhase].progress) {
+                    progress += 1;
+                    bootProgressBar.style.width = `${progress}%`;
+                    
+                    // Add terminal messages for current phase
+                    if (progress === bootPhases[currentPhase].progress - bootPhases[currentPhase].terminalLines.length + 1) {
+                        // Update boot message
+                        bootMessage.innerHTML = bootPhases[currentPhase].message + '<span class="loading-dots"></span>';
+                        
+                        // Add terminal messages with delay
+                        addPhaseTerminalLines(currentPhase);
+                    }
+                } else if (currentPhase < bootPhases.length - 1) {
+                    // Move to next phase
+                    currentPhase++;
+                } else if (progress === 100) {
+                    // Boot sequence complete
+                    clearInterval(bootInterval);
+                    bootMessage.innerHTML = "System Ready! Press ENTER to launch";
+                    bootButton.style.display = "block";
+                }
+            }, 100);
+            
+            // Add terminal lines with delay for a phase
+            function addPhaseTerminalLines(phase) {
+                const lines = bootPhases[phase].terminalLines;
+                
+                lines.forEach((line, index) => {
+                    setTimeout(() => {
+                        addTerminalLine(line.text, line.type);
+                        
+                        // Scroll terminal to bottom
+                        bootTerminal.scrollTop = bootTerminal.scrollHeight;
+                        
+                        // If this is the last line of the last phase, update boot message
+                        if (phase === bootPhases.length - 1 && index === lines.length - 1) {
+                            bootMessage.innerHTML = "System Ready! Press ENTER to launch";
+                            bootButton.style.display = "block";
+                        }
+                    }, 300 * index);
+                });
+            }
+            
+            // Add a line to the terminal
+            function addTerminalLine(text, type) {
+                const line = document.createElement("div");
+                line.className = `terminal-line ${type}`;
+                
+                if (type === "blinking-cursor") {
+                    line.classList.add("blinking-cursor");
+                }
+                
+                line.textContent = text;
+                bootTerminal.appendChild(line);
+                
+                // Scroll to bottom
+                bootTerminal.scrollTop = bootTerminal.scrollHeight;
+            }
+            
+            // Boot button click handler
+            bootButton.addEventListener("click", function() {
+                // Hide boot screen
+                bootScreen.style.opacity = 0;
+                bootScreen.style.pointerEvents = "none";
+                
+                // Show OS container
+                osContainer.style.opacity = 1;
+                osContainer.style.pointerEvents = "auto";
+            });
+        }
+        
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.querySelector(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Contact form setup
+        function setupContactForm() {
+            const contactForm = document.getElementById('contact-form');
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Simulate form submission
+                    const submitButton = contactForm.querySelector('.form-submit');
+                    const originalText = submitButton.textContent;
+                    
+                    submitButton.textContent = 'Sending...';
+                    submitButton.disabled = true;
+                    
+                    // Simulate API call with delay
+                    setTimeout(() => {
+                        // Reset form
+                        contactForm.reset();
+                        
+                        // Reset button
+                        submitButton.textContent = originalText;
+                        submitButton.disabled = false;
+                        
+                        // Show success message
+                        alert('Thank you for contacting Konomi Systems! We will respond to your inquiry soon.');
+                    }, 1500);
+                });
+            }
+        }
     </script>
 </body>
 </html>
