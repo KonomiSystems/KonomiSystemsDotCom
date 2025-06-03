@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alzheimer's Research Hub - Konomi Systems</title>
+    <link rel="stylesheet" href="../../../styles/main.css">
+    <link rel="stylesheet" href="../components/styles.css">
+    <style>
+        :root {
+            --konomi-primary: #1a365d;
+            --konomi-secondary: #2563eb;
+            --konomi-accent: #60a5fa;
+            --konomi-gold: #f59e0b;
+            --warning-red: #dc2626;
+            --success-green: #059669;
+            --light-blue: #dbeafe;
+            --light-gray: #f9fafb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .konomi-header {
+            background: linear-gradient(135deg, var(--konomi-primary) 0%, var(--konomi-secondary) 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .konomi-brand {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .frumkin-signature {
+            font-style: italic;
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .research-disclaimer {
+            background: #fef2f2;
+            border-left: 6px solid var(--warning-red);
+            padding: 24px;
+            margin: 32px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .research-overview {
+            background: linear-gradient(135deg, var(--light-blue) 0%, #f0f9ff 100%);
+            border: 3px solid var(--konomi-accent);
+            padding: 32px;
+            border-radius: 16px;
+            margin: 24px 0;
+        }
+
+        .key-findings {
+            background: #ecfdf5;
+            border: 3px solid var(--success-green);
+            padding: 32px;
+            border-radius: 16px;
+            margin: 32px 0;
+        }
+
+        .findings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .finding-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--success-green);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .finding-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+        .finding-title {
+            color: var(--success-green);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .research-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .section-category {
+            background: var(--light-gray);
+            border: 2px solid var(--konomi-accent);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .section-category:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+            border-color: var(--konomi-gold);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--konomi-accent);
+        }
+
+        .category-icon {
+            font-size: 1.8rem;
+            padding: 8px;
+            background: var(--konomi-secondary);
+            color: white;
+            border-radius: 8px;
+        }
+
+        .category-title {
+            color: var(--konomi-primary);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .research-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .research-links li {
+            margin: 12px 0;
+        }
+
+        .research-links a {
+            display: block;
+            padding: 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--konomi-secondary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .research-links a:hover {
+            background: var(--light-blue);
+            border-color: var(--konomi-gold);
+            transform: translateX(4px);
+            color: var(--konomi-primary);
+        }
+
+        .research-links a::before {
+            content: attr(data-icon);
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .technical-note {
+            background: #fef3c7;
+            border: 2px solid var(--konomi-gold);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 24px 0;
+        }
+
+        .methodology-section {
+            background: #f3e8ff;
+            border: 2px solid #7c3aed;
+            padding: 32px;
+            border-radius: 16px;
+            margin: 32px 0;
+        }
+
+        .latest-research-stats {
+            background: var(--konomi-primary);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--konomi-gold);
+            display: block;
+        }
+
+        .navigation-footer {
+            background: var(--konomi-primary);
+            color: white;
+            padding: 32px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .footer-brands {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .footer-brand {
+            padding: 12px 25px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .footer-brand:hover {
+            background: var(--konomi-gold);
+            color: var(--konomi-primary);
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            display: inline-block;
+            background: var(--konomi-gold);
+            color: var(--konomi-primary);
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .research-sections {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-brands {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="konomi-header">
+            <div class="konomi-brand">
+                🧠 Konomi Systems Research
+            </div>
+            <h1>🧠 Alzheimer's Research Hub</h1>
+            <h2>Comprehensive Molecular Analysis & Treatment Development</h2>
+            <div class="frumkin-signature">
+                Research by Thomas Frumkin | <a href="https://thomasfrumkin.com" style="color: var(--konomi-gold);">thomasfrumkin.com</a> | 
+                <a href="https://konomi-systems.com" style="color: var(--konomi-gold);">Konomi Systems</a>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="research-disclaimer">
+                <strong>⚠️ Research Status Notice:</strong> This documentation represents novel theoretical research findings derived from AI-assisted analysis of scientific literature and computational modeling. All molecular parameters, binding constants, and treatment specifications are based on theoretical calculations and require independent experimental validation through peer-reviewed research before any clinical consideration.
+            </div>
+
+            <div class="research-overview">
+                <h2 style="color: var(--konomi-primary); margin-top: 0;">📋 Research Foundation</h2>
+                <p>This comprehensive analysis investigates the hypothesis that aluminum fluoride compounds (AlF and AlF₃) function as molecular antagonists in Alzheimer's disease pathogenesis, inducing prion-like protein misfolding cascades through specific binding interactions with tau and β-amyloid proteins.</p>
+                
+                <div class="technical-note">
+                    <strong>Konomi Systems Methodological Approach:</strong> The research combines computational molecular modeling, binding affinity calculations, and theoretical treatment design. All quantitative parameters represent modeling outputs requiring experimental validation.
+                </div>
+            </div>
+
+            <div class="latest-research-stats">
+                <h3 style="text-align: center; margin-bottom: 20px;">📊 Latest Research Context (2024-2025)</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">1.63</div>
+                        <div>IQ Points Lost per 1mg/L Fluoride</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">74</div>
+                        <div>Studies in Meta-Analysis</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">73%</div>
+                        <div>US Population Exposed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">2024</div>
+                        <div>Year NTP Confirmed Neurotoxicity</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="key-findings">
+                <h3 style="color: var(--success-green); margin-top: 0;">🔑 Primary Research Findings</h3>
+                
+                <div class="findings-grid">
+                    <div class="finding-card">
+                        <div class="finding-title">Molecular Antagonism</div>
+                        <p>AlF/AlF₃ compounds demonstrate specific binding to neural proteins with calculated Kd values in the micromolar range, potentially disrupting normal folding pathways</p>
+                    </div>
+                    <div class="finding-card">
+                        <div class="finding-title">Cooperative Binding</div>
+                        <p>AlF₃ exhibits enhanced cooperativity (Hill coefficient n ≈ 2.5) compared to AlF (n ≈ 1.5), suggesting threshold-dependent pathological effects</p>
+                    </div>
+                    <div class="finding-card">
+                        <div class="finding-title">Prion-like Propagation</div>
+                        <p>Theoretical modeling suggests 2.8× enhancement in protein misfolding rates, creating self-templating cascades similar to prion diseases</p>
+                    </div>
+                    <div class="finding-card">
+                        <div class="finding-title">Therapeutic Target</div>
+                        <p>Engineered phosphate-based molecules show theoretical potential for selective AlF/AlF₃ binding and clearance with >90% efficiency</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="research-sections">
+                <div class="section-category">
+                    <div class="category-header">
+                        <div class="category-icon">🔬</div>
+                        <h3 class="category-title">Fundamental Research</h3>
+                    </div>
+                    <ul class="research-links">
+                        <li><a href="causal-analysis.html" data-icon="📊">Causal Analysis Framework</a></li>
+                        <li><a href="molecular-mechanisms.html" data-icon="⚛️">Molecular Binding Mechanisms</a></li>
+                        <li><a href="protein-folding.html" data-icon="🧬">Protein Folding Disruption</a></li>
+                        <li><a href="critical-analysis.html" data-icon="🔍">Critical Literature Review</a></li>
+                    </ul>
+                </div>
+
+                <div class="section-category">
+                    <div class="category-header">
+                        <div class="category-icon">💊</div>
+                        <h3 class="category-title">Therapeutic Development</h3>
+                    </div>
+                    <ul class="research-links">
+                        <li><a href="antagonist-design.html" data-icon="🎯">Antagonist Molecule Design</a></li>
+                        <li><a href="nano-lipids.html" data-icon="🔬">Nano Lipid Delivery System</a></li>
+                        <li><a href="treatment-protocol.html" data-icon="📋">Clinical Protocol Design</a></li>
+                    </ul>
+                </div>
+
+                <div class="section-category">
+                    <div class="category-header">
+                        <div class="category-icon">🏭</div>
+                        <h3 class="category-title">Implementation Science</h3>
+                    </div>
+                    <ul class="research-links">
+                        <li><a href="manufacturing.html" data-icon="⚙️">Manufacturing Processes</a></li>
+                        <li><a href="quality-control.html" data-icon="✅">Quality Control Standards</a></li>
+                        <li><a href="validation.html" data-icon="🧪">Validation Methodologies</a></li>
+                    </ul>
+                </div>
+
+                <div class="section-category">
+                    <div class="category-header">
+                        <div class="category-icon">🏰</div>
+                        <h3 class="category-title">Epic Research Chronicles</h3>
+                    </div>
+                    <ul class="research-links">
+                        <li><a href="perseus-protocol.html" data-icon="⚔️">The Perseus Protocol: Complete Epic Tale</a></li>
+                        <li><a href="../components/interactive_guide.html" data-icon="🎮">Interactive Research Guide</a></li>
+                        <li><a href="../components/fluoride_impact_infographic.html" data-icon="📈">Impact Infographics</a></li>
+                        <li><a href="../components/progressive_disclosure.html" data-icon="🔄">Progressive Disclosure Tool</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="methodology-section">
+                <h3 style="color: #7c3aed; margin-top: 0;">🔬 Konomi Systems Research Methodology & Limitations</h3>
+                <h4>Computational Approaches Used:</h4>
+                <ul>
+                    <li><strong>Molecular Modeling:</strong> Binding affinity calculations using Hill equation frameworks</li>
+                    <li><strong>Protein Structure Analysis:</strong> Conformational change predictions for tau and β-amyloid</li>
+                    <li><strong>Pharmacokinetic Modeling:</strong> BBB penetration and clearance projections</li>
+                    <li><strong>Dose-Response Modeling:</strong> Threshold concentration calculations</li>
+                    <li><strong>AI-Assisted Literature Analysis:</strong> Comprehensive review of 2024-2025 research findings</li>
+                </ul>
+                
+                <h4>Critical Limitations:</h4>
+                <ul>
+                    <li><strong>Experimental Validation:</strong> All binding constants require direct measurement via techniques like SPR or ITC</li>
+                    <li><strong>Cellular Context:</strong> In vivo protein interactions may differ significantly from theoretical models</li>
+                    <li><strong>Clinical Translation:</strong> Safety and efficacy must be established through proper preclinical and clinical studies</li>
+                    <li><strong>Peer Review:</strong> Independent validation of all theoretical frameworks is essential</li>
+                </ul>
+            </div>
+
+            <div class="navigation-footer">
+                <a href="../index.html" class="back-link">← Return to Health Research Hub</a>
+                
+                <div class="footer-brands">
+                    <a href="https://konomi-systems.com" class="footer-brand">
+                        🧠 Konomi Systems
+                    </a>
+                    <a href="https://thomasfrumkin.com" class="footer-brand">
+                        👨‍💻 Thomas Frumkin
+                    </a>
+                    <a href="mailto:research@konomi-systems.com" class="footer-brand">
+                        📧 Research Contact
+                    </a>
+                </div>
+
+                <p><strong>Konomi Systems AI Research Division</strong></p>
+                <p>Advanced AI-Assisted Literature Analysis & Molecular Modeling</p>
+                <p><small>© 2025 Thomas Frumkin | Konomi Systems | Novel Research Hub</small></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

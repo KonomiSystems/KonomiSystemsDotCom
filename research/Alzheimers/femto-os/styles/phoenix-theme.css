@@ -1,0 +1,217 @@
+/**
+ * Konomi Phoenix Femto OS Theme
+ * Advanced CSS Variables and Styling System
+ */
+
+:root {
+    --konomi-primary: #1a365d;
+    --konomi-secondary: #2563eb;
+    --konomi-accent: #60a5fa;
+    --konomi-gold: #f59e0b;
+    --phoenix-fire: #dc2626;
+    --success-green: #059669;
+    --light-blue: #dbeafe;
+    --light-gray: #f9fafb;
+    --hero-gold: #ffd700;
+    --villain-red: #8b0000;
+    --warning-red: #dc2626;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #1f2937;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Component Base Styles */
+.research-disclaimer {
+    background: #fef2f2;
+    border-left: 6px solid var(--warning-red);
+    padding: 24px;
+    margin: 32px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.research-overview {
+    background: linear-gradient(135deg, var(--light-blue) 0%, #f0f9ff 100%);
+    border: 3px solid var(--konomi-accent);
+    padding: 32px;
+    border-radius: 16px;
+    margin: 24px 0;
+}
+
+.technical-note {
+    background: #fef3c7;
+    border: 2px solid var(--konomi-gold);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 24px 0;
+}
+
+.latest-research-stats {
+    background: var(--konomi-primary);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    margin: 30px 0;
+}
+
+.research-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+    margin: 32px 0;
+}
+
+.section-category {
+    background: var(--light-gray);
+    border: 2px solid var(--konomi-accent);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+}
+
+.section-category:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+    border-color: var(--konomi-gold);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--konomi-accent);
+}
+
+.category-icon {
+    font-size: 1.8rem;
+    padding: 8px;
+    background: var(--konomi-secondary);
+    color: white;
+    border-radius: 8px;
+}
+
+.category-title {
+    color: var(--konomi-primary);
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.research-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.research-links li {
+    margin: 12px 0;
+}
+
+.research-links a {
+    display: block;
+    padding: 16px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--konomi-secondary);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.research-links a:hover {
+    background: var(--light-blue);
+    border-color: var(--konomi-gold);
+    transform: translateX(4px);
+    color: var(--konomi-primary);
+}
+
+.research-links a::before {
+    content: attr(data-icon);
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+
+.navigation-footer {
+    background: var(--konomi-primary);
+    color: white;
+    padding: 32px;
+    text-align: center;
+    margin-top: 40px;
+}
+
+.footer-brands {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.footer-brand {
+    padding: 12px 25px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.footer-brand:hover {
+    background: var(--konomi-gold);
+    color: var(--konomi-primary);
+    transform: translateY(-2px);
+}
+
+.back-link {
+    display: inline-block;
+    background: var(--konomi-gold);
+    color: var(--konomi-primary);
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    background: white;
+    transform: translateY(-2px);
+}
+
+/* Phoenix-specific animations */
+@keyframes phoenixRise {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.phoenix-animate {
+    animation: phoenixRise 0.8s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .research-sections { grid-template-columns: 1fr; }
+    .footer-brands { flex-direction: column; gap: 10px; }
+    .stats-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+}

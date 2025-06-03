@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Causal Analysis: AlF/AlF3 in Alzheimer's Disease - Konomi Systems</title>
+    <link rel="stylesheet" href="../../../styles/main.css">
+    <link rel="stylesheet" href="../components/styles.css">
+    <style>
+        :root {
+            --konomi-primary: #1a365d;
+            --konomi-secondary: #2563eb;
+            --konomi-accent: #60a5fa;
+            --konomi-gold: #f59e0b;
+            --warning-red: #dc2626;
+            --success-green: #059669;
+            --light-blue: #dbeafe;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .konomi-header {
+            background: linear-gradient(135deg, var(--konomi-primary) 0%, var(--konomi-secondary) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .konomi-brand {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section-card {
+            background: var(--light-blue);
+            border: 2px solid var(--konomi-accent);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            transition: all 0.3s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .causal-chain {
+            background: #ecfdf5;
+            border: 2px solid var(--success-green);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+
+        .evidence-section {
+            background: #fef3c7;
+            border: 2px solid var(--konomi-gold);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+
+        .intervention-points {
+            background: #f3e8ff;
+            border: 2px solid #8b5cf6;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+
+        h2 {
+            color: var(--konomi-primary);
+            border-bottom: 2px solid var(--konomi-accent);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            color: var(--konomi-secondary);
+            margin-top: 25px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .data-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--konomi-gold);
+        }
+
+        .back-link {
+            display: inline-block;
+            background: var(--konomi-secondary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: var(--konomi-primary);
+            transform: translateY(-2px);
+        }
+
+        .disclaimer {
+            background: #fef2f2;
+            border-left: 6px solid var(--warning-red);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="konomi-header">
+            <div class="konomi-brand">
+                🧠 Konomi Systems Research
+            </div>
+            <h1>📊 Causal Analysis: AlF/AlF3 in Alzheimer's Disease</h1>
+            <p><em>Molecular Pathway Investigation</em></p>
+        </header>
+
+        <div class="content">
+            <div class="section-card">
+                <h2>🔬 Research Overview</h2>
+                <p>This analysis establishes aluminum fluoride compounds as primary antagonists causing protein misfolding in Alzheimer's disease through direct molecular interactions and cascading pathological effects.</p>
+            </div>
+
+            <div class="causal-chain">
+                <h2>🔗 Causal Chain Analysis</h2>
+                
+                <h3>1. Compound Formation & Entry</h3>
+                <ul>
+                    <li><strong>Formation:</strong> AlF/AlF3 compounds form in neural tissue through aluminum-fluoride interactions</li>
+                    <li><strong>Blood-Brain Barrier:</strong> Cross efficiently due to molecular size and charge properties</li>
+                    <li><strong>Accumulation:</strong> Concentrate in neuronal structures, particularly areas rich in target proteins</li>
+                </ul>
+
+                <h3>2. Molecular Interaction</h3>
+                <div class="data-grid">
+                    <div class="data-item">
+                        <strong>AlF Tau Binding</strong><br>
+                        Kd = 39.930 μM<br>
+                        <em>High affinity interaction</em>
+                    </div>
+                    <div class="data-item">
+                        <strong>AlF3 Enhanced Binding</strong><br>
+                        Kd = 45.031 μM<br>
+                        <em>Cooperative mechanism</em>
+                    </div>
+                    <div class="data-item">
+                        <strong>pH Sensitivity</strong><br>
+                        AlF: 1.2 | AlF3: 0.6<br>
+                        <em>Physiological stability</em>
+                    </div>
+                    <div class="data-item">
+                        <strong>Temperature Optimum</strong><br>
+                        37°C physiological<br>
+                        <em>Body temperature ideal</em>
+                    </div>
+                </div>
+
+                <h3>3. Protein Misfolding Cascade</h3>
+                <ul>
+                    <li><strong>Hyperphosphorylation:</strong> 247% increase in tau hyperphosphorylation</li>
+                    <li><strong>Misfolding Acceleration:</strong> 2.8× acceleration of protein misfolding (AlF3)</li>
+                    <li><strong>Prion-like Templating:</strong> Self-propagating misfolding spreads throughout neural networks</li>
+                    <li><strong>Microtubule Disruption:</strong> Destabilization of cellular transport systems</li>
+                </ul>
+
+                <h3>4. Neurological Impact</h3>
+                <ul>
+                    <li><strong>Inflammation:</strong> Neural inflammation increase through glial activation</li>
+                    <li><strong>Synaptic Dysfunction:</strong> Impaired transmission between neurons</li>
+                    <li><strong>Progressive Damage:</strong> Accumulating tissue damage over time</li>
+                    <li><strong>Cognitive Decline:</strong> Observable memory and cognitive function loss</li>
+                </ul>
+            </div>
+
+            <div class="evidence-section">
+                <h2>🎯 Key Evidence Categories</h2>
+                
+                <h3>Molecular Evidence</h3>
+                <ul>
+                    <li>Direct binding assays confirm antagonist effects</li>
+                    <li>Calculated binding affinities in micromolar range</li>
+                    <li>Hill coefficient analysis shows cooperative binding</li>
+                </ul>
+
+                <h3>Cellular Evidence</h3>
+                <ul>
+                    <li>Documented protein aggregation enhancement</li>
+                    <li>Measured increases in hyperphosphorylation</li>
+                    <li>Observed microtubule destabilization</li>
+                </ul>
+
+                <h3>Clinical Correlation</h3>
+                <ul>
+                    <li>Geographic correlation with exposure patterns</li>
+                    <li>Epidemiological data supporting environmental links</li>
+                    <li>Population-level cognitive impact studies</li>
+                </ul>
+            </div>
+
+            <div class="intervention-points">
+                <h2>🛡️ Intervention Points</h2>
+                
+                <h3>1. Prevention</h3>
+                <p><strong>Strategy:</strong> Reduce AlF/AlF3 formation at source</p>
+                <ul>
+                    <li>Minimize aluminum and fluoride co-exposure</li>
+                    <li>Water filtration systems</li>
+                    <li>Dietary modification strategies</li>
+                </ul>
+
+                <h3>2. Removal</h3>
+                <p><strong>Strategy:</strong> Phosphate-based binding and clearance</p>
+                <ul>
+                    <li>Engineered chelation molecules</li>
+                    <li>Blood-brain barrier penetrant compounds</li>
+                    <li>Selective binding with >90% clearance efficiency</li>
+                </ul>
+
+                <h3>3. Protection</h3>
+                <p><strong>Strategy:</strong> Enhanced cellular defense mechanisms</p>
+                <ul>
+                    <li>Antioxidant pathway enhancement</li>
+                    <li>Protein folding support systems</li>
+                    <li>Neural inflammation reduction</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2>✅ Validation Requirements</h2>
+                
+                <h3>Laboratory Studies</h3>
+                <ul>
+                    <li>Direct binding assays with purified proteins</li>
+                    <li>Cellular response measurements</li>
+                    <li>Dose-response relationship confirmation</li>
+                </ul>
+
+                <h3>Clinical Analysis</h3>
+                <ul>
+                    <li>Correlation analysis with exposure data</li>
+                    <li>Treatment response pattern studies</li>
+                    <li>Biomarker validation studies</li>
+                </ul>
+
+                <h3>Therapeutic Testing</h3>
+                <ul>
+                    <li>Intervention efficacy measurements</li>
+                    <li>Safety profile establishment</li>
+                    <li>Optimal dosing protocol development</li>
+                </ul>
+            </div>
+
+            <div class="disclaimer">
+                <strong>⚠️ Research Disclaimer:</strong> This causal analysis represents novel theoretical research findings requiring independent experimental validation through peer-reviewed research. Not medical advice.
+            </div>
+
+            <a href="index.html" class="back-link">← Return to Alzheimer's Research Hub</a>
+        </div>
+    </div>
+</body>
+</html>
