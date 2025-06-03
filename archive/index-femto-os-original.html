@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Konomi Systems - Advanced Femto Computing Solutions">
+    <title>Konomi Systems</title>
+    <style>
+        :root {
+            --primary-color: #0033a0;
+            --secondary-color: #e60012;
+            --accent-color: #00aeef;
+            --background-color: #0a0a0a;
+            --surface-color: #121212;
+            --surface-color-light: #1e1e1e;
+            --text-color: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --border-color: #333333;
+            --success-color: #00c853;
+            --warning-color: #ffab00;
+            --error-color: #ff5252;
+            --terminal-green: #33ff33;
+            --terminal-blue: #3399ff;
+            --gradient-red: #e60012;
+            --gradient-blue: #0033a0;
+            --gradient-purple: #8338ec;
+            --gradient-cyan: #00aeef;
+            --font-mono: 'Courier New', monospace;
+            --font-sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.14);
+            --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+            --animation-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Boot Screen */
+        #boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--background-color);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .boot-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .boot-logo::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(
+                var(--gradient-red),
+                var(--gradient-purple),
+                var(--gradient-blue),
+                var(--gradient-cyan),
+                var(--gradient-red)
+            );
+            border-radius: 50%;
+            animation: rotate 4s linear infinite;
+        }
+
+        .boot-logo::after {
+            content: "K";
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            background-color: var(--background-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .boot-progress {
+            width: 300px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .boot-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--gradient-red), var(--gradient-blue));
+            transition: width 0.2s ease-out;
+        }
+
+        .boot-message {
+            font-family: var(--font-mono);
+            color: var(--terminal-green);
+            margin-bottom: 1rem;
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .boot-terminal {
+            width: 90%;
+            max-width: 700px;
+            height: 300px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--terminal-green);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            margin-top: 1rem;
+        }
+
+        .terminal-line {
+            width: 100%;
+            margin-bottom: 0.3rem;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .terminal-line.success {
+            color: var(--success-color);
+        }
+
+        .terminal-line.warning {
+            color: var(--warning-color);
+        }
+
+        .terminal-line.error {
+            color: var(--error-color);
+        }
+
+        .terminal-line.info {
+            color: var(--terminal-blue);
+        }
+
+        .boot-button {
+            display: none;
+            padding: 1rem 2rem;
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, var(--gradient-red), var(--gradient-blue));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow-md);
+        }
+
+        .boot-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* OS Container */
+        #os-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Taskbar */
+        .taskbar {
+            height: 50px;
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            z-index: 10;
+        }
+
+        .konomi-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, var(--gradient-red), var(--gradient-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .taskbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .taskbar-button {
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color var(--animation-speed);
+        }
+
+        .taskbar-button:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .taskbar-button.primary {
+            background-color: var(--primary-color);
+        }
+
+        .taskbar-button.primary:hover {
+            background-color: #0044cc;
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            height: 100vh;
+            background-color: var(--background-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(0, 51, 160, 0.15), transparent 70%);
+            z-index: 1;
+        }
+
+        .hero-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+        }
+
+        .hero-content {
+            z-index: 2;
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, var(--text-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-button.primary {
+            background: linear-gradient(135deg, var(--gradient-red), var(--gradient-blue));
+            color: white;
+            border: none;
+            box-shadow: var(--shadow-md);
+        }
+
+        .cta-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .cta-button.secondary {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--text-secondary);
+        }
+
+        .cta-button.secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Feature Section */
+        .feature-section {
+            padding: 6rem 2rem;
+            background-color: var(--surface-color);
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--gradient-red), var(--gradient-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background-color: var(--surface-color-light);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            height: 160px;
+            background: linear-gradient(135deg, var(--gradient-red), var(--gradient-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .feature-content {
+            padding: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Technology Section */
+        .technology-section {
+            padding: 6rem 2rem;
+            background-color: var(--background-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tech-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 30%, rgba(230, 0, 18, 0.15), transparent 70%);
+            z-index: 1;
+        }
+
+        .technology-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tech-showcase {
+            margin-top: 3rem;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .tech-item {
+            background-color: var(--surface-color-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            width: 280px;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .tech-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 6rem 2rem;
+            background-color: var(--surface-color);
+        }
+
+        .about-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+            width: 100%;
+        }
+
+        .about-card {
+            background-color: var(--surface-color-light);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .about-card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .about-card-content {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 6rem 2rem;
+            background-color: var(--background-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 70%, rgba(0, 174, 239, 0.15), transparent 70%);
+            z-index: 1;
+        }
+
+        .contact-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contact-form-container {
+            width: 100%;
+            margin-top: 3rem;
+            background-color: var(--surface-color-light);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-submit {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, var(--gradient-red), var(--gradient-blue));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--surface-color);
+            padding: 4rem 2rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-link-group {
+            min-width: 160px;
+        }
+
+        .footer-link-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .footer-link-list {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-link a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .footer-link a:hover {
+            color: var(--accent-color);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            max-width: 1200px;
+        }
+
+        .footer-copyright {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-link {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--surface-color-light);
+            border-radius: 50%;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .social-link:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive styling */
+        @media (max-width: 768px) {
+            .cta-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tech-showcase {
+                gap: 1rem;
+            }
+
+            .tech-item {
+                width: 100%;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Loading dots animation */
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* Blinking cursor animation */
+        .blinking-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Boot Screen -->
+    <div id="boot-screen">
+        <div class="boot-logo"></div>
+        <div class="boot-progress">
+            <div class="boot-progress-bar" id="boot-progress-bar"></div>
+        </div>
+        <div class="boot-message" id="boot-message">Initializing Konomi Femto OS<span class="loading-dots"></span></div>
+        <div class="boot-terminal" id="boot-terminal"></div>
+        <button class="boot-button" id="boot-button">ENTER KONOMI SYSTEMS</button>
+    </div>
+
+    <!-- OS Container -->
+    <div id="os-container">
+        <div class="taskbar">
+            <div class="konomi-logo">
+                <div class="logo-icon">K</div>
+                <div class="logo-text">Konomi Systems</div>
+            </div>
+            <div class="taskbar-right">
+                <button class="taskbar-button" onclick="scrollToSection('#features')">Products</button>
+                <button class="taskbar-button" onclick="scrollToSection('#technology')">Technology</button>
+                <button class="taskbar-button" onclick="scrollToSection('#about')">About</button>
+                <button class="taskbar-button primary" onclick="scrollToSection('#contact')">Contact Us</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Hero Section -->
+            <section class="hero-section" id="home">
+                <div class="hero-bg"></div>
+                <div class="hero-grid"></div>
+                <div class="hero-content">
+                    <h1 class="hero-title">Next-Generation Femto Computing Solutions</h1>
+                    <p class="hero-subtitle">
+                        Konomi Systems delivers cutting-edge femto architecture technology for the most demanding applications.
+                        From embedded AI to high-performance computing, our solutions redefine what's possible.
+                    </p>
+                    <div class="cta-buttons">
+                        <button class="cta-button primary" onclick="scrollToSection('#features')">Explore Our Solutions</button>
+                        <button class="cta-button secondary" onclick="scrollToSection('#contact')">Schedule a Demo</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feature Section -->
+            <section class="feature-section" id="features">
+                <div class="section-header">
+                    <h2 class="section-title">Our Core Solutions</h2>
+                    <p class="section-subtitle">
+                        Discover our innovative product line designed to revolutionize computing at every scale
+                    </p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🧠</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">Femto Compute Architecture</h3>
+                            <p class="feature-description">
+                                Our revolutionary femtoscale computing architecture delivers unprecedented performance 
+                                in microscopic form factors, enabling new categories of embedded intelligence.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌐</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">KonomOS Platform</h3>
+                            <p class="feature-description">
+                                A complete operating environment for femto-scale systems, providing secure, 
+                                real-time performance with advanced virtualization capabilities.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">Embedded Tiny-LLM</h3>
+                            <p class="feature-description">
+                                Ultra-compact language models designed for edge devices, bringing natural language
+                                processing to constrained environments with minimal resource usage.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">eVGPU Accelerator</h3>
+                            <p class="feature-description">
+                                Our embedded Virtual GPU technology delivers desktop-class graphics and compute 
+                                capabilities in energy-efficient packages for edge applications.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔄</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">Femto Tensor Engine</h3>
+                            <p class="feature-description">
+                                Specialized tensor processing units optimized for machine learning workloads,
+                                enabling real-time AI inferencing with minimal power consumption.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔐</div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">Secure Computing Platform</h3>
+                            <p class="feature-description">
+                                End-to-end security architecture with hardware-backed cryptography, secure boot,
+                                and tamper detection for mission-critical applications.
+                            </p>
+                            <a href="#" class="feature-link">Learn more →</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Technology Section -->
+            <section class="technology-section" id="technology">
+                <div class="tech-bg"></div>
+                <div class="technology-content">
+                    <div class="section-header">
+                        <h2 class="section-title">Our Technology</h2>
+                        <p class="section-subtitle">
+                            Pioneering advancements in femtoscale computing through breakthrough innovation
+                        </p>
+                    </div>
+                    <div class="tech-showcase">
+                        <div class="tech-item">
+                            <div class="tech-icon">⚡</div>
+                            <h3 class="tech-title">RISC-V Femto Core</h3>
+                            <p class="tech-description">
+                                Our custom RISC-V cores are optimized for 7nm process technology, delivering 
+                                incredible performance at sub-watt power envelopes.
+                            </p>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">🔄</div>
+                            <h3 class="tech-title">Mesh NoC Interconnect</h3>
+                            <p class="tech-description">
+                                High-bandwidth, low-latency Network-on-Chip architecture enabling scalable multi-core 
+                                designs with efficient data movement.
+                            </p>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">💾</div>
+                            <h3 class="tech-title">HBM Memory Integration</h3>
+                            <p class="tech-description">
+                                Integrated High-Bandwidth Memory delivers up to 256GB/s memory bandwidth in compact 
+                                packages for data-intensive workloads.
+                            </p>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">🔋</div>
+                            <h3 class="tech-title">Advanced Power States</h3>
+                            <p class="tech-description">
+                                Fine-grained power management with nano-second state transitions enables 
+                                unprecedented energy efficiency during operation.
+                            </p>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">📚</div>
+                            <h3 class="tech-title">Quantized Neural Engine</h3>
+                            <p class="tech-description">
+                                Purpose-built neural processors supporting INT8/INT4 quantization for 
+                                efficient inference of deep learning models.
+                            </p>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">⚙️</div>
+                            <h3 class="tech-title">Femto-scale Virtualization</h3>
+                            <p class="tech-description">
+                                Hardware-accelerated virtualization technology allowing secure, isolated 
+                                execution environments with minimal overhead.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section class="about-section" id="about">
+                <div class="about-content">
+                    <div class="section-header">
+                        <h2 class="section-title">About Konomi Systems</h2>
+                        <p class="section-subtitle">
+                            Leading the revolution in femto computing through innovation and excellence
+                        </p>
+                    </div>
+                    <div class="about-grid">
+                        <div class="about-card">
+                            <h3 class="about-card-title">Our Mission</h3>
+                            <p class="about-card-content">
+                                At Konomi Systems, we're dedicated to pushing the boundaries of what's possible with femto-scale 
+                                computing. Our mission is to create technologies that enable a new generation of intelligent, 
+                                energy-efficient computing systems that can transform industries and improve lives.
+                            </p>
+                        </div>
+                        <div class="about-card">
+                            <h3 class="about-card-title">Our Team</h3>
+                            <p class="about-card-content">
+                                Our team comprises world-class engineers, researchers, and industry veterans with decades of 
+                                experience in semiconductor design, system architecture, and software development. We combine 
+                                diverse expertise to tackle the most challenging problems in computing.
+                            </p>
+                        </div>
+                        <div class="about-card">
+                            <h3 class="about-card-title">Our Values</h3>
+                            <p class="about-card-content">
+                                Innovation, excellence, and integrity are at the core of everything we do. We believe in 
+                                creating sustainable technology that respects privacy, promotes efficiency, and enables 
+                                human creativity. Our commitment to ethical development guides all our decisions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section class="contact-section" id="contact">
+                <div class="contact-bg"></div>
+                <div class="contact-content">
+                    <div class="section-header">
+                        <h2 class="section-title">Connect With Us</h2>
+                        <p class="section-subtitle">
+                            Interested in learning more about our femto computing solutions? Reach out to our team.
+                        </p>
+                    </div>
+                    <div class="contact-form-container">
+                        <form id="contact-form">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" id="name" class="form-input" placeholder="Your name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" class="form-input" placeholder="Your email address" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="subject" class="form-label">Subject</label>
+                                <input type="text" id="subject" class="form-input" placeholder="What's this about?">
+                            </div>
+                            <div class="form-group">
+                                <label for="message" class="form-label">Message</label>
+                                <textarea id="message" class="form-textarea" placeholder="Your message" required></textarea>
+                            </div>
+                            <button type="submit" class="form-submit">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="footer-logo">
+                    <div class="logo-icon">K</div>
+                    <div class="logo-text">Konomi Systems</div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-link-group">
+                        <h4 class="footer-link-title">Products</h4>
+                        <ul class="footer-link-list">
+                            <li class="footer-link"><a href="#">Femto Compute</a></li>
+                            <li class="footer-link"><a href="#">KonomOS</a></li>
+                            <li class="footer-link"><a href="#">Tiny-LLM</a></li>
+                            <li class="footer-link"><a href="#">eVGPU</a></li>
+                            <li class="footer-link"><a href="#">Tensor Engine</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-group">
+                        <h4 class="footer-link-title">Technology</h4>
+                        <ul class="footer-link-list">
+                            <li class="footer-link"><a href="#">Architecture</a></li>
+                            <li class="footer-link"><a href="#">Research</a></li>
+                            <li class="footer-link"><a href="#">White Papers</a></li>
+                            <li class="footer-link"><a href="#">Patents</a></li>
+                            <li class="footer-link"><a href="#">Standards</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-group">
+                        <h4 class="footer-link-title">Company</h4>
+                        <ul class="footer-link-list">
+                            <li class="footer-link"><a href="#">About Us</a></li>
+                            <li class="footer-link"><a href="#">Leadership</a></li>
+                            <li class="footer-link"><a href="#">Careers</a></li>
+                            <li class="footer-link"><a href="#">Press</a></li>
+                            <li class="footer-link"><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-group">
+                        <h4 class="footer-link-title">Resources</h4>
+                        <ul class="footer-link-list">
+                            <li class="footer-link"><a href="#">Documentation</a></li>
+                            <li class="footer-link"><a href="#">Developer Portal</a></li>
+                            <li class="footer-link"><a href="#">Support</a></li>
+                            <li class="footer-link"><a href="#">FAQs</a></li>
+                            <li class="footer-link"><a href="#">Community</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <div class="footer-copyright">
+                        &copy; 2025 Konomi Systems. All rights reserved.
+                    </div>
+                    <div class="social-links">
+                        <a href="#" class="social-link">T</a>
+                        <a href="#" class="social-link">L</a>
+                        <a href="#" class="social-link">G</a>
+                        <a href="#" class="social-link">Y</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start boot sequence
+            startBootSequence();
+            
+            // Setup contact form
+            setupContactForm();
+        });
+        
+        function startBootSequence() {
+            const bootScreen = document.getElementById('boot-screen');
+            const bootProgressBar = document.getElementById('boot-progress-bar');
+            const bootMessage = document.getElementById('boot-message');
+            const bootTerminal = document.getElementById('boot-terminal');
+            const bootButton = document.getElementById('boot-button');
+            const osContainer = document.getElementById('os-container');
+            
+            let progress = 0;
+            let currentPhase = 0;
+            
+            // Boot phases and their messages
+            const bootPhases = [
+                {
+                    progress: 5,
+                    message: "Initializing Konomi Femto OS kernel",
+                    terminalLines: [
+                        { text: "Konomi Femto OS v4.0.2 (April 2025)", type: "info" },
+                        { text: "Copyright (c) 2023-2025 Konomi Systems, Inc.", type: "info" },
+                        { text: "BIOS version: KNM-FB0421", type: "info" },
+                        { text: "CPU: RISC-V Femto Core 8x @ 1.2GHz", type: "info" },
+                        { text: "Memory: 4GB HBM2 detected", type: "info" },
+                        { text: "Initializing kernel...", type: "normal" }
+                    ]
+                },
+                {
+                    progress: 20,
+                    message: "Loading system components",
+                    terminalLines: [
+                        { text: "Loading kernel modules...", type: "normal" },
+                        { text: "Module 'femto_core.sys' loaded", type: "success" },
+                        { text: "Module 'mem_controller.sys' loaded", type: "success" },
+                        { text: "Module 'io_subsystem.sys' loaded", type: "success" },
+                        { text: "Module 'gpu_driver.sys' loaded", type: "success" },
+                        { text: "Module 'net_stack.sys' loaded", type: "success" },
+                        { text: "All system modules loaded successfully", type: "success" }
+                    ]
+                },
+                {
+                    progress: 35,
+                    message: "Initializing hardware subsystems",
+                    terminalLines: [
+                        { text: "Detecting hardware...", type: "normal" },
+                        { text: "CPU cores online: 8/8", type: "success" },
+                        { text: "Memory controller initialized", type: "success" },
+                        { text: "Tensor Engine detected and initialized", type: "success" },
+                        { text: "eVGPU initialized", type: "success" },
+                        { text: "Network interfaces detected: 2", type: "success" },
+                        { text: "Audio subsystem initialized", type: "success" },
+                        { text: "Storage controller initialized", type: "success" }
+                    ]
+                },
+                {
+                    progress: 50,
+                    message: "Starting system services",
+                    terminalLines: [
+                        { text: "Starting system services...", type: "normal" },
+                        { text: "Service 'security_manager' started [PID 241]", type: "success" },
+                        { text: "Service 'device_manager' started [PID 242]", type: "success" },
+                        { text: "Service 'power_manager' started [PID 243]", type: "success" },
+                        { text: "Service 'network_service' started [PID 244]", type: "success" },
+                        { text: "Service 'ui_service' started [PID 245]", type: "success" },
+                        { text: "Service 'llm_service' started [PID 246]", type: "success" },
+                        { text: "All services started successfully", type: "success" }
+                    ]
+                },
+                {
+                    progress: 65,
+                    message: "Initializing Tiny-LLM engine",
+                    terminalLines: [
+                        { text: "Loading Tiny-LLM engine...", type: "normal" },
+                        { text: "Model 'tiny-llm-7b' initialization started", type: "normal" },
+                        { text: "Loading model weights from storage...", type: "normal" },
+                        { text: "Quantizing model to INT8 precision...", type: "normal" },
+                        { text: "Uploading model to tensor accelerator...", type: "normal" },
+                        { text: "Calibrating inference pipeline...", type: "normal" },
+                        { text: "Tiny-LLM model loaded successfully", type: "success" },
+                        { text: "AI subsystem ready", type: "success" }
+                    ]
+                },
+                {
+                    progress: 80,
+                    message: "Loading user interface",
+                    terminalLines: [
+                        { text: "Initializing UI subsystem...", type: "normal" },
+                        { text: "Loading UI components...", type: "normal" },
+                        { text: "Loading theme: Konomi-Dark", type: "success" },
+                        { text: "Initializing window manager...", type: "normal" },
+                        { text: "Preparing application containers...", type: "normal" },
+                        { text: "Loading system fonts...", type: "normal" },
+                        { text: "Preparing rendering pipeline...", type: "normal" },
+                        { text: "UI system initialized", type: "success" }
+                    ]
+                },
+                {
+                    progress: 95,
+                    message: "Performing system checks",
+                    terminalLines: [
+                        { text: "Running system diagnostics...", type: "normal" },
+                        { text: "CPU diagnostics: PASSED", type: "success" },
+                        { text: "Memory diagnostics: PASSED", type: "success" },
+                        { text: "Storage diagnostics: PASSED", type: "success" },
+                        { text: "Network diagnostics: PASSED", type: "success" },
+                        { text: "Security verification: PASSED", type: "success" },
+                        { text: "System integrity check: PASSED", type: "success" },
+                        { text: "All diagnostics completed successfully", type: "success" }
+                    ]
+                },
+                {
+                    progress: 100,
+                    message: "System ready!",
+                    terminalLines: [
+                        { text: "Konomi Femto OS boot sequence completed", type: "success" },
+                        { text: "System initialized in 3.24 seconds", type: "info" },
+                        { text: "Memory usage: 682MB / 4096MB", type: "info" },
+                        { text: "Tensor Engine: Online", type: "success" },
+                        { text: "Femto Core Utilization: 8%", type: "info" },
+                        { text: "Awaiting user interaction...", type: "normal" },
+                        { text: "Ready to launch KonomOS interface", type: "success" },
+                        { text: "Press ENTER to continue...", type: "blinking-cursor" }
+                    ]
+                }
+            ];
+            
+            // Handle initial terminal messages
+            addTerminalLine("Starting Konomi Femto OS...", "info");
+            addTerminalLine("KONOMI SYSTEMS (c) 2025", "info");
+            addTerminalLine("---------------------------", "normal");
+            
+            // Start boot progress animation
+            const bootInterval = setInterval(() => {
+                if (progress < bootPhases[currentPhase].progress) {
+                    progress += 1;
+                    bootProgressBar.style.width = `${progress}%`;
+                    
+                    // Add terminal messages for current phase
+                    if (progress === bootPhases[currentPhase].progress - bootPhases[currentPhase].terminalLines.length + 1) {
+                        // Update boot message
+                        bootMessage.innerHTML = bootPhases[currentPhase].message + '<span class="loading-dots"></span>';
+                        
+                        // Add terminal messages with delay
+                        addPhaseTerminalLines(currentPhase);
+                    }
+                } else if (currentPhase < bootPhases.length - 1) {
+                    // Move to next phase
+                    currentPhase++;
+                } else if (progress === 100) {
+                    // Boot sequence complete
+                    clearInterval(bootInterval);
+                    bootMessage.innerHTML = "System Ready! Press ENTER to launch";
+                    bootButton.style.display = "block";
+                }
+            }, 100);
+            
+            // Add terminal lines with delay for a phase
+            function addPhaseTerminalLines(phase) {
+                const lines = bootPhases[phase].terminalLines;
+                
+                lines.forEach((line, index) => {
+                    setTimeout(() => {
+                        addTerminalLine(line.text, line.type);
+                        
+                        // Scroll terminal to bottom
+                        bootTerminal.scrollTop = bootTerminal.scrollHeight;
+                        
+                        // If this is the last line of the last phase, update boot message
+                        if (phase === bootPhases.length - 1 && index === lines.length - 1) {
+                            bootMessage.innerHTML = "System Ready! Press ENTER to launch";
+                            bootButton.style.display = "block";
+                        }
+                    }, 300 * index);
+                });
+            }
+            
+            // Add a line to the terminal
+            function addTerminalLine(text, type) {
+                const line = document.createElement("div");
+                line.className = `terminal-line ${type}`;
+                
+                if (type === "blinking-cursor") {
+                    line.classList.add("blinking-cursor");
+                }
+                
+                line.textContent = text;
+                bootTerminal.appendChild(line);
+                
+                // Scroll to bottom
+                bootTerminal.scrollTop = bootTerminal.scrollHeight;
+            }
+            
+            // Boot button click handler
+            bootButton.addEventListener("click", function() {
+                // Hide boot screen
+                bootScreen.style.opacity = 0;
+                bootScreen.style.pointerEvents = "none";
+                
+                // Show OS container
+                osContainer.style.opacity = 1;
+                osContainer.style.pointerEvents = "auto";
+            });
+        }
+        
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.querySelector(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Contact form setup
+        function setupContactForm() {
+            const contactForm = document.getElementById('contact-form');
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Simulate form submission
+                    const submitButton = contactForm.querySelector('.form-submit');
+                    const originalText = submitButton.textContent;
+                    
+                    submitButton.textContent = 'Sending...';
+                    submitButton.disabled = true;
+                    
+                    // Simulate API call with delay
+                    setTimeout(() => {
+                        // Reset form
+                        contactForm.reset();
+                        
+                        // Reset button
+                        submitButton.textContent = originalText;
+                        submitButton.disabled = false;
+                        
+                        // Show success message
+                        alert('Thank you for contacting Konomi Systems! We will respond to your inquiry soon.');
+                    }, 1500);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
