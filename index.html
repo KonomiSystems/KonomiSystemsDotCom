@@ -53,6 +53,24 @@
             justify-content: center;
             font-size: 2rem;
             font-weight: bold;
+            position: relative;
+        }
+
+        .phoenix-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #059669, #34d399, #fbbf24);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            animation: phoenixGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes phoenixGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(5, 150, 105, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(5, 150, 105, 0.6), 0 0 30px rgba(251, 191, 36, 0.4); }
         }
 
         .hero h1 {
@@ -276,8 +294,13 @@
         <div class="container">
             <div class="hero">
                 <div class="logo">
-                    <div class="logo-icon">🔥</div>
-                    <span style="font-size: 1.5rem; font-weight: 600;">Konomi Phoenix</span>
+                    <div class="logo-icon">
+                        <div class="phoenix-avatar">🌿</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 1.5rem; font-weight: 600;">Konomi Phoenix</span>
+                        <span style="font-size: 0.9rem; color: var(--text-secondary);">Advanced Research Systems</span>
+                    </div>
                 </div>
                 <h1>Advanced Research Systems</h1>
                 <p>Pioneering AI-assisted molecular analysis, Perseus protocols, and neural research through innovative computational approaches</p>
@@ -425,9 +448,9 @@
     <footer>
         <div class="container">
             <div class="footer-links">
-                <a href="https://konomi-phoenix.com" class="footer-link">Konomi Phoenix</a>
+                <a href="https://konomi-systems.com" class="footer-link">Konomi Phoenix</a>
                 <a href="https://konomi-systems.com" class="footer-link">Konomi Systems</a>
-                <a href="mailto:research@konomi-phoenix.com" class="footer-link">Contact Research</a>
+                <a href="mailto:research@konomi-systems.com" class="footer-link">Contact Research</a>
                 <a href="research/Alzheimers/GOVERNMENT_NON_RESPONSE_RECORD.md" class="footer-link">Government Records</a>
             </div>
             <p style="color: var(--text-secondary); font-size: 0.9rem;">
